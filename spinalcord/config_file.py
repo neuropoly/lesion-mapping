@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+#
+# This file contains the main hardcoded variables and input paths used for the processing.
+#
+# Charley Gros 2018-09-20
+# Modified: 2018-09-20
+
 import os
 
 config = dict()
