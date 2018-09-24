@@ -9,7 +9,7 @@ import os
 
 config = dict()
 
-config["center_dct"] = {"rennes": {"ax": ["t2s_inf", "t2s_sup"],
+config["dct_center"] = {"rennes": {"ax": ["t2s_inf", "t2s_sup"],
                                     "sag": ["t2_sag_cerv"]},
                         "montpellier": {"ax": ["t2s_inf", "t2s_sup"],
                                     "sag": ["t2_sag_cerv"]},
