@@ -77,11 +77,11 @@ def check_data(path_data, center_dct, subj_data_df):
     missing_subject, missing_img, missing_contrast = [], [], []
     missing_sc, missing_lesion, missing_incorrect_labels = [], [], []
     incorrect_sc, incorrect_lesion = [], []
-    for s in subj_data_df.subject.values:
+    for s, center in zip(subj_data_df.subject.values, subj_data_df.center.values):
         s_folder = os.path.join(path_data, s)
         if os.path.isdir(s_folder):
             sc_folder = os.path.join(s_folder, 'spinalcord')
-            c_lst = [cc for orient in center_dct[s.split('_')[0]] for cc in center_dct[s.split('_')[0]][orient]]
+            c_lst = [cc for orient in center_dct[center] for cc in center_dct[center][orient]]
             for c in c_lst:
                 c_folder = os.path.join(sc_folder, c)
                 if os.path.isdir(c_folder):
