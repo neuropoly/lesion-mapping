@@ -46,13 +46,13 @@ source sct_launcher
 
 ### Clinical and demographic information
 Please save the clinical and demographic information of the dataset into a `csv` file, with the following columns for each subject:
-	- `center`: center of acquisition
-	- `subject`: subject folder name
-	- `age`: age of the subject (year)
-	- `gender`: gender of the subject: either `F` for female or `M` for male
-	- `disease_dur`: disease duration of the subject (year)
-	- `edss`: EDSS score of the subject (float between 0 and 10)
-	- `phenotype`: phenotype of the subject: `CIS`, `RR`, `SP` or `PP`
+- `center`: center of acquisition
+- `subject`: subject folder name
+- `age`: age of the subject (year)
+- `gender`: gender of the subject: either `F` for female or `M` for male
+- `disease_dur`: disease duration of the subject (year)
+- `edss`: EDSS score of the subject (float between 0 and 10)
+- `phenotype`: phenotype of the subject: `CIS`, `RR`, `SP` or `PP`
 
 ### Brain processing
 
