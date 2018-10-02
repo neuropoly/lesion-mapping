@@ -44,13 +44,8 @@ git clone https://github.com/neuropoly/ms_brain_spine
 source sct_launcher
 ~~~
 
-### Brain processing
-
-#### Set parameters
-Edit [config_file.py](brain/config_file.py) according to your needs, then save the file.
-- `dct_center`: indicate for each center, the folder names of your structural image (see `struct` in the `Dataset structure` section, e.g. `anat.nii.gz`) and your anatomical image (`anat`, e.g. `flair.nii.gz`)
-- `path_data`: folder path where your data is stored (see also `Dataset structure` section)
-- `csv_clinicalInfo`: path towards the csv containing the clinical information of the dataset, with the following columns for each subject:
+### Clinical and demographic information
+Please save the clinical and demographic information of the dataset into a `csv` file, with the following columns for each subject:
 	- `center`: center of acquisition
 	- `subject`: subject folder name
 	- `age`: age of the subject (year)
@@ -58,6 +53,14 @@ Edit [config_file.py](brain/config_file.py) according to your needs, then save t
 	- `disease_dur`: disease duration of the subject (year)
 	- `edss`: EDSS score of the subject (float between 0 and 10)
 	- `phenotype`: phenotype of the subject: `CIS`, `RR`, `SP` or `PP`
+
+### Brain processing
+
+#### Set parameters
+Edit [config_file.py](brain/config_file.py) according to your needs, then save the file.
+- `dct_center`: indicate for each center, the folder names of your structural image (see `struct` in the `Dataset structure` section, e.g. `anat.nii.gz`) and your anatomical image (`anat`, e.g. `flair.nii.gz`)
+- `path_data`: folder path where your data is stored (see also `Dataset structure` section)
+- `csv_clinicalInfo`: path towards the csv containing the clinical information of the dataset
 - `path_results`: folder path where to save the results
 
 #### Check data
@@ -86,14 +89,7 @@ python missing_incorrect_files.py 201809201152_incorrect_lesion.pkl
 Edit [config_file.py](spinalcord/config_file.py) according to your needs, then save the file.
 - `dct_center`: indicate for each center, the folder names of your axial image (see `contrast_ax` in the `Dataset structure` section) and your sagittal image (`contrast_sag`)
 - `path_data`: folder path where your data is stored (see also `Dataset structure` section)
-- `csv_clinicalInfo`: path towards the csv containing the clinical information of the dataset, with the following columns for each subject:
-	- `center`: center of acquisition
-	- `subject`: subject folder name
-	- `age`: age of the subject (year)
-	- `gender`: gender of the subject: either `F` for female or `M` for male
-	- `disease_dur`: disease duration of the subject (year)
-	- `edss`: EDSS score of the subject (float between 0 and 10)
-	- `phenotype`: phenotype of the subject: `CIS`, `RR`, `SP` or `PP`
+- `csv_clinicalInfo`: path towards the csv containing the clinical information of the dataset
 - `path_results`: folder path where to save the results
 
 #### Check data
