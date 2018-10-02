@@ -13,7 +13,7 @@
 #                     anat/
 #                                 anat.nii.gz # raw image
 #                                 anat_lesion_manual.nii.gz # lesion mask (binary)
-# (3) Creation of pickle '0_datetime_results.pkl', saved in current working directory. 
+# (3) Creation of pickle '0_results.pkl', saved in current working directory. 
 # WARNING: If a file is missing, the subject will be excluded for the remainder of the pipeline. 
 #
 # Created: 2017-04-01
@@ -105,7 +105,7 @@ def main(args=None):
                                 center_dct=center_dct,
                                 subj_data_df=subj_data_df)
 
-    subj_check_df.to_pickle('0_' + DATE_TIME_STG + '_results.pkl')
+    subj_check_df.to_pickle('0_results.pkl')
 
 
 if __name__ == "__main__":

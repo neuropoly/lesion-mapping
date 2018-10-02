@@ -83,6 +83,13 @@ for instance:
 python missing_incorrect_files.py 201809201152_incorrect_lesion.pkl
 ~~~
 
+#### Register data to the MNI152_T1_1mm space
+Register data by running:
+~~~
+python 1_register_data.py
+~~~
+This script XXX
+
 ### Spinal cord processing
 
 #### Set parameters
