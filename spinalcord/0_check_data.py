@@ -13,7 +13,7 @@
 #                                 image_ax_seg_manual.nii.gz # spinal cord mask (binary)
 #                                 image_ax_lesion_manual.nii.gz # lesion mask (binary)
 #                                 labels_disc.nii.gz # disc label
-#                                 labels_verts.nii.gz # vertebral label, non-compulsory
+#                                 labels_vert.nii.gz # vertebral label, non-compulsory
 # (3) Creation of pickle '0_results.pkl', saved in current working directory. 
 # WARNING: If a file is missing, the subject will be excluded for the remainder of the pipeline. 
 #

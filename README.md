@@ -24,7 +24,7 @@ The dataset should be arranged in a structured fashion, as the following:
 			- image_ax_seg_manual.nii.gz # spinal cord mask (binary)
 			- image_ax_lesion_manual.nii.gz # lesion mask (binary)
 			- labels_disc.nii.gz # disc label (2 labels, i.e. 2 voxels)
-			- labels_verts.nii.gz # vertebral label (2 labels, i.e. voxels, mid body), non-compulsory
+			- labels_vert.nii.gz # vertebral label (2 labels, i.e. voxels, mid body), non-compulsory
 ~~~
 
 ## How to run
