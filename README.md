@@ -19,17 +19,12 @@ The dataset should be arranged in a structured fashion, as the following:
 		- struct/
 			- struct.nii.gz
 	- spinalcord/
-	    - contrast_ax/
-			- contrast_ax.nii.gz # raw image
-			- contrast_ax_seg_manual.nii.gz # spinal cord mask (binary)
-			- contrast_ax_lesion_manual.nii.gz # lesion mask (binary)
+	    - image_ax/
+			- image_ax.nii.gz # raw image
+			- image_ax_seg_manual.nii.gz # spinal cord mask (binary)
+			- image_ax_lesion_manual.nii.gz # lesion mask (binary)
 			- labels_disc.nii.gz # disc label (2 labels, i.e. 2 voxels)
-	    - contrast_sag/
-			- contrast_sag.nii.gz # raw image
-			- contrast_sag_seg_manual.nii.gz # spinal cord mask (binary)
-			- contrast_sag_lesion_manual.nii.gz # lesion mask (binary)
-			- labels_disc.nii.gz # disc label (2 labels, i.e. 2 voxels)
-    - ...
+			- labels_verts.nii.gz # vertebral label (2 labels, i.e. voxels, mid body), non-compulsory
 ~~~
 
 ## How to run
@@ -70,7 +65,7 @@ python 0_check_data.py
 ~~~
 This script will loop across the subjects listed in the csv file `csv_clinicalInfo` and check the availaibility and integrity of the files used for the processing. If some files are missing or incorrect, one or more of the following files will be output in the current directory (where `datetime` indicates the date and time of the end of the running of `0_check_data`):
 - `datetime_missing_subject.pkl`: if the folder of a subject listed in the csv file is not present in the dataset.
-- `datetime_missing_contrast.pkl`: if the contrast folder of a subject listed in the `dct_center` dictionary is not present in the dataset.
+- `datetime_missing_contrast.pkl`: if the image folder of a subject listed in the `dct_center` dictionary is not present in the dataset.
 - `datetime_missing_img.pkl`: if a raw image is missing in the dataset.
 - `datetime_missing_lesion.pkl`: if a lesion segmentation is missing in the dataset for a `anat` image.
 - `datetime_incorrect_lesion.pkl`: if a lesion segmentation is incorrect in the dataset (i.e. not binary) for a `anat` image.
@@ -94,7 +89,7 @@ This script XXX
 
 #### Set parameters
 Edit [config_file.py](spinalcord/config_file.py) according to your needs, then save the file.
-- `dct_center`: indicate for each center, the folder names of your axial image (see `contrast_ax` in the `Dataset structure` section) and your sagittal image (`contrast_sag`)
+- `dct_center`: indicate for each center, the folder names of your axial image(s) (see `image_ax` in the `Dataset structure` section)
 - `path_data`: folder path where your data is stored (see also `Dataset structure` section)
 - `csv_clinicalInfo`: path towards the csv containing the clinical information of the dataset
 - `path_results`: folder path where to save the results
@@ -106,7 +101,7 @@ python 0_check_data.py
 ~~~
 This script will loop across the subjects listed in the csv file `csv_clinicalInfo` and check the availaibility and integrity of the files used for the processing. If some files are missing or incorrect, one or more of the following files will be output in the current directory (where `datetime` indicates the date and time of the end of the running of `0_check_data`):
 - `datetime_missing_subject.pkl`: if the folder of a subject listed in the csv file is not present in the dataset.
-- `datetime_missing_contrast.pkl`: if the contrast folder of a subject listed in the `dct_center` dictionary is not present in the dataset.
+- `datetime_missing_contrast.pkl`: if the image folder of a subject listed in the `dct_center` dictionary is not present in the dataset.
 - `datetime_missing_img.pkl`: if a raw image is missing in the dataset.
 - `datetime_missing_sc.pkl`: if a spinal cord segmentation is missing in the dataset.
 - `datetime_missing_lesion.pkl`: if a lesion segmentation is missing in the dataset.

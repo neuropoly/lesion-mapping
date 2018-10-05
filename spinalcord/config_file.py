@@ -3,18 +3,15 @@
 # This file contains the main hardcoded variables and input paths used for the processing.
 #
 # Charley Gros 2018-09-20
-# Modified: 2018-09-20
+# Modified: 2018-10-05
 
 import os
 
 config = dict()
 
-config["dct_center"] = {"rennes": {"ax": ["t2s_inf", "t2s_sup"],
-                                    "sag": ["t2_sag_cerv"]},
-                        "montpellier": {"ax": ["t2s_inf", "t2s_sup"],
-                                    "sag": ["t2_sag_cerv"]},
-                        "lyon": {"ax": ["t2s"],
-                                    "sag": ["t2_sag"]}
+config["dct_center"] = {"rennes": ["t2s_inf", "t2s_sup"],
+                        "montpellier": ["t2s_inf", "t2s_sup"],
+                        "lyon": ["t2s"]
                         }
 
 config["path_data"] = "/home/charley/data/brain_spine/data_processing/"

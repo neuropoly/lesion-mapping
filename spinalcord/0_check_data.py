@@ -8,21 +8,17 @@
 #     (Please ensure below organisation / folder structure.)
 #     subject_name/
 #             spinalcord/
-#                     contrast_ax/
-#                                 contrast_ax.nii.gz # raw image
-#                                 contrast_ax_seg_manual.nii.gz # spinal cord mask (binary)
-#                                 contrast_ax_lesion_manual.nii.gz # lesion mask (binary)
+#                     image_ax/
+#                                 image_ax.nii.gz # raw image
+#                                 image_ax_seg_manual.nii.gz # spinal cord mask (binary)
+#                                 image_ax_lesion_manual.nii.gz # lesion mask (binary)
 #                                 labels_disc.nii.gz # disc label
-#                     contrast_sag/
-#                                 contrast_sag.nii.gz # raw image
-#                                 contrast_sag_seg_manual.nii.gz # spinal cord mask (binary)
-#                                 contrast_sag_lesion_manual.nii.gz # lesion mask (binary)
-#                                 labels_disc.nii.gz # disc label
-# (3) Creation of pickle '0_datetime_results.pkl', saved in current working directory. 
+#                                 labels_verts.nii.gz # vertebral label, non-compulsory
+# (3) Creation of pickle '0_results.pkl', saved in current working directory. 
 # WARNING: If a file is missing, the subject will be excluded for the remainder of the pipeline. 
 #
 # Created: 2017-04-01
-# Modified: 2018-09-20
+# Modified: 2018-10-05
 # Contributors: Charley Gros, Sara Dupont & Dominique Eden
 
 import os
@@ -58,7 +54,7 @@ def _check_lesion_seg(fname):
     return check_bool
 
 
-def _check_disc_label(fname):
+def _check_label(fname):
     '''Check if the mask is only made of 2 voxels.'''
     i = Image(fname)
     check_bool = True
@@ -77,44 +73,55 @@ def check_data(path_data, center_dct, subj_data_df):
     missing_subject, missing_img, missing_contrast = [], [], []
     missing_sc, missing_lesion, missing_incorrect_labels = [], [], []
     incorrect_sc, incorrect_lesion = [], []
-    for s, center in zip(subj_data_df.subject.values, subj_data_df.center.values):
+    excluded_subject = []
+    for s, center, idx_s in zip(subj_data_df.subject.values, subj_data_df.center.values, subj_data_df.index.values):
         s_folder = os.path.join(path_data, s)
         if os.path.isdir(s_folder):
             sc_folder = os.path.join(s_folder, 'spinalcord')
-            c_lst = [cc for orient in center_dct[center] for cc in center_dct[center][orient]]
-            for c in c_lst:
+            for c in center_dct[center]:
                 c_folder = os.path.join(sc_folder, c)
                 if os.path.isdir(c_folder):
                     c_img = os.path.join(c_folder, c + '.nii.gz')
                     c_seg = os.path.join(c_folder, c + '_seg_manual.nii.gz')
                     c_lesion = os.path.join(c_folder, c + '_lesion_manual.nii.gz')
                     c_labels = os.path.join(c_folder, 'labels_disc.nii.gz')
+                    c_labels_vert = os.path.join(c_folder, 'labels_vert.nii.gz')
                     
                     if not os.path.isfile(c_img):
                         missing_img.append(os.path.abspath(c_img))
+                        excluded_subject.append(idx_s)
                         
                     if os.path.isfile(c_seg):
                         if not _check_sc_seg(c_seg):
                             incorrect_sc.append(os.path.abspath(c_seg))
+                            excluded_subject.append(idx_s)
                     else:
                         missing_sc.append(os.path.abspath(c_seg))
+                        excluded_subject.append(idx_s)
 
                     if os.path.isfile(c_lesion):
                         if not _check_lesion_seg(c_lesion):
-                            incorrect_lesion.append(os.path.abspath(c_lesion))               
+                            incorrect_lesion.append(os.path.abspath(c_lesion))
+                            excluded_subject.append(idx_s)               
                     else:
                         missing_lesion.append(os.path.abspath(c_lesion))
+                        excluded_subject.append(idx_s)
 
-                    if os.path.isfile(c_labels):
-                        if not _check_disc_label(c_labels):
-                            missing_incorrect_labels.append(os.path.abspath(c_labels))
-                    else:
+                    if not os.path.isfile(c_labels) and not os.path.isfile(c_labels_vert):
                         missing_incorrect_labels.append(os.path.abspath(c_labels))
+                        excluded_subject.append(idx_s)
+                    else:
+                        c_labels = c_labels if os.path.isfile(c_labels) else c_labels_vert
+                        if not _check_label(c_labels):
+                            missing_incorrect_labels.append(os.path.abspath(c_labels))
+                            excluded_subject.append(idx_s)
                     
                 else:
                     missing_contrast.append(c_folder)
+                    excluded_subject.append(idx_s)
         else:
             missing_subject.append(s_folder)
+            excluded_subject.append(idx_s)
 
     date_time_stg = datetime.datetime.now().strftime("%Y%m%d%H%M")
     stg_lst = ['missing_subject', 'missing_img', 'missing_contrast', 'missing_sc', 'missing_lesion', 'missing_incorrect_labels', 'incorrect_sc', 'incorrect_lesion']
@@ -124,6 +131,8 @@ def check_data(path_data, center_dct, subj_data_df):
             dct = {stg: lst}
             with open(date_time_stg + '_' + stg + '.pkl', 'wb') as f:
                 pickle.dump(dct, f)
+
+    return subj_data_df.drop(subj_data_df.index[list(set(excluded_subject))])
 
 def main(args=None):
 
@@ -136,6 +145,8 @@ def main(args=None):
     subj_check_df = check_data(path_data=path_data,
                                 center_dct=center_dct,
                                 subj_data_df=subj_data_df)
+
+    subj_check_df.to_pickle('0_results.pkl')
 
 
 if __name__ == "__main__":

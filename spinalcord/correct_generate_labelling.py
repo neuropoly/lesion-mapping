@@ -7,7 +7,7 @@
 # e.g. python correct_generate_labelling.py 201809192209_incorrect_sc.pkl
 #
 # Charley Gros 2018-09-18
-# Modified: 2018-09-18
+# Modified: 2018-10-05
 
 import os
 import sys
@@ -17,12 +17,15 @@ import sct_utils as sct
 def _generate_disc_labels(lst):
 	'''Generate intervertebral disc labels.'''
 	stg = '\n\nMissing or Incorrect files: ' + str(len(lst)) + '\n'
-	msg = 'Click to put 2 labels at the posterior edge of the intervertebral discs (e.g. label 3 corresponds to disc C2-C3).'
-	msg += ' Choose your 2 label values as far away as possible on the image.'
+	msg_disc = 'Click to put 2 labels at the posterior edge of the intervertebral discs (e.g. label 3 corresponds to disc C2-C3).'
+	msg_vert = 'Click to put 2 labels at the center of the cord, mid-body of the vertebra (e.g. label 3 corresponds to vertebral body C3).'
+	msg_disc += ' Choose your 2 label values as far away as possible on the image.'
+	msg_vert += ' Choose your 2 label values as far away as possible on the image.'
 	for l in lst:
 		print os.path.dirname(l) + '\n'
 		fname_img = os.path.dirname(l) + '/' + l.split('/')[-2] + '.nii.gz'
-		sct.run(['sct_label_utils', '-i', fname_img, '-create-viewer', '3,4,5,6', '-msg', msg, '-o', l])
+		msg = msg_disc if 'disc' in l.split('/')[-2] else msg_vert
+		sct.run(['sct_label_utils', '-i', fname_img, '-create-viewer', '1,2,3,4,5,6,7', '-msg', msg, '-o', l])
 
 
 def _visualize_incorrect_segmentation(lst):
