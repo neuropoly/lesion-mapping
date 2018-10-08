@@ -8,6 +8,8 @@ SCT is used for all preprocessing steps, including spinal cord segmentation, reg
 
 Version [v.3.2.4](https://github.com/neuropoly/spinalcordtoolbox/releases/v3.2.4) and above.
 
+- Add Anima or FSL dependency
+
 ## Dataset structure
 The dataset should be arranged in a structured fashion, as the following:
 ~~~
