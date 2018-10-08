@@ -9,12 +9,12 @@ import os
 
 config = dict()
 
-config["dct_center"] = {"rennes": {"struct": ["t1"],
-                                    "anat": ["flair"]},
-                        "montpellier": {"struct": ["t1"],
-                                    "anat": ["flair"]},
-                        "lyon": {"struct": ["t1"],
-                                    "anat": ["flair"]}
+config["dct_center"] = {"rennes": {"struct": "t1",
+                                    "anat": "flair"},
+                        "montpellier": {"struct": "t1",
+                                    "anat": "flair"},
+                        "lyon": {"struct": "t1",
+                                    "anat": "flair"}
                         }
 
 config["path_data"] = "/home/charley/data/brain_spine/data_processing/"
