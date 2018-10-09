@@ -26,17 +26,16 @@ animaConvertImage -i flair/flair_masked.nrrd -o flair/flair_brain.nii.gz
 animaPyramidalBMRegistration -r t1/t1_brain.nii.gz -m flair/flair_brain.nii.gz -o flair/flair_t1.nii.gz -O flair/flair2t1.txt
 
 # Rigid registration of T1 to the MNI152_T1_1mm: T1_rig
-animaPyramidalBMRegistration -r ${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz -m t1/t1_brain.nii.gz -t 1 -o t1/t1_mni_rig.nii.gz -O t1/t12mni_rig.txt
+animaPyramidalBMRegistration -r ${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz -m t1/t1_brain.nii.gz -o t1/t1_mni_rig.nii.gz -O t1/t12mni_rig.txt
 
 # # Affine registration of T1_rig to the MNI152_T1_1mm: T1_aff
-# animaPyramidalBMRegistration -r ${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz -m t1/t1_mni_rig.nii.gz -t 2 -o t1/t1_mni_aff.nii.gz -O t1/t12mni_aff.txt
+animaPyramidalBMRegistration -r ${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz -m t1/t1_mni_rig.nii.gz --ot 2 -o t1/t1_mni_aff.nii.gz -O t1/t12mni_aff.txt
 
 # Non Linear registration of T1 to the MNI152_T1_1mm: T1_nonlin
-# animaDenseSVFBMRegistration -r ${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz -m t1/t1_mni_aff.nii.gz -o t1/t1_mni_nonlin.nii.gz -O t1/t12mni_nonlin.nii.gz
-animaDenseSVFBMRegistration -r ${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz -m t1/t1_mni_rig.nii.gz -o t1/t1_mni_nonlin.nii.gz -O t1/t12mni_nonlin.nii.gz
+animaDenseSVFBMRegistration -r ${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz -m t1/t1_mni_aff.nii.gz -o t1/t1_mni_nonlin.nii.gz -O t1/t12mni_nonlin.nii.gz
 
 # Concatenate the transformation from the flair space to the MNI space
-animaTransformSerieXmlGenerator -i flair/flair2t1.txt -i t1/t12mni_rig.txt -i t1/t12mni_nonlin.nii.gz -o flair/flair2mni.xml
+animaTransformSerieXmlGenerator -i flair/flair2t1.txt -i t1/t12mni_rig.txt -i t1/t12mni_aff.txt -i t1/t12mni_nonlin.nii.gz -o flair/flair2mni.xml
 
 # Apply the transformations
 animaApplyTransformSerie -i flair/flair_brain.nii.gz -g ${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz -t flair/flair2mni.xml -o flair/flair_mni.nii.gz
