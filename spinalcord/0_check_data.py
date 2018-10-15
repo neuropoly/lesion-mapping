@@ -86,7 +86,6 @@ def check_data(path_data, center_dct, subj_data_df):
                     c_lesion = os.path.join(c_folder, c + '_lesion_manual.nii.gz')
                     c_labels = os.path.join(c_folder, 'labels_disc.nii.gz')
                     c_labels_vert = os.path.join(c_folder, 'labels_vert.nii.gz')
-                    
                     if not os.path.isfile(c_img):
                         missing_img.append(os.path.abspath(c_img))
                         excluded_subject.append(idx_s)

@@ -17,7 +17,7 @@ from spinalcordtoolbox.image import Image
 
 from config_file import config
 
-PARAM_REG = 'step=1,type=seg,algo=centermassrot,metric=MeanSquares:step=2,type=seg,algo=bsplinesyn,shrink=8,metric=MeanSquares:step=3,type=seg,algo=bsplinesyn,shrink=4,metric=MeanSquares:step=4,type=im,algo=bsplinesyn,metric=MI,iter=5,shrink=1'
+PARAM_REG = 'step=1,type=seg,algo=centermass,metric=MeanSquares,slicewise=1:step=2,type=seg,algo=bsplinesyn,metric=MeanSquares,slicewise=1,iter=3'
 
 def register_to_template(img_path, sc_path, contrast, label_path, label_flag):
 
@@ -28,8 +28,7 @@ def register_to_template(img_path, sc_path, contrast, label_path, label_flag):
                                             '-s', sc_path,
                                             '-c', contrast,
                                             label_flag, label_path,
-                                            '-param', PARAM_REG,
-                                            '-v', '2'])
+                                            '-param', PARAM_REG])
     except:
         im_ana, im_seg = Image(img_path), Image(sc_path)
         im_seg_new = im_ana.copy() # copy hdr --> segmentation
@@ -39,7 +38,7 @@ def register_to_template(img_path, sc_path, contrast, label_path, label_flag):
         im_labels = Image(label_path)
         im_labels_new = im_ana.copy() # copy hdr --> labels
         im_labels_new.data = im_labels.data 
-        im_labels_new.changeType(type='uint8')
+        im_labels_new.change_type(type='uint8')
         im_labels_new.save(label_path)
 
         try: # re-run
@@ -47,13 +46,19 @@ def register_to_template(img_path, sc_path, contrast, label_path, label_flag):
                                                 '-s', sc_path,
                                                 '-c', contrast,
                                                 label_flag, label_path,
-                                                '-param', PARAM_REG,
-                                                '-v', '2'])
+                                                '-param', PARAM_REG])
         except:
             registration_status = 0
             sct.printv('ERROR: Could not complete registration for anat. --> template! Path: %s' % img_path)
     
     return registration_status
+
+
+def warp_template(dest_img, warping_field, qc_folder):
+
+    sct.run(['sct_warp_template', '-d', dest_img,
+                                    '-w', warping_field,
+                                    '-qc', qc_folder])
 
 
 def main(args=None):
@@ -62,6 +67,7 @@ def main(args=None):
 
     path_data = config['path_data']
     center_dct = config["dct_center"]
+    path_qc = os.path.join(config["path_results"], 'qc')
     current_dir = os.getcwd()
 
     excluded_subject = []
@@ -81,7 +87,7 @@ def main(args=None):
                         label_flag = '-l'
                     contrast = img_prefixe.split('_')[0]
 
-                    out_path = os.path.join(img_fold, 'anat2template.nii.gz')
+                    out_path = os.path.join(img_fold, 'template2anat.nii.gz')
                     if not os.path.isfile(out_path):
                         print img_path
                         os.chdir(img_fold)
@@ -90,10 +96,20 @@ def main(args=None):
                                                             contrast,
                                                             label_path,
                                                             label_flag)
-                        os.chdir(current_dir)
+                        
+                    atlas_path = os.path.join(img_fold, 'label')
+                    warping_field_path = os.path.join(img_fold, 'warp_template2anat.nii.gz')
+                    if not os.path.isdir(atlas_path) and os.path.isfile(warping_field_path):
+                        warp_template(img_path,
+                                        warping_field_path,
+                                        path_qc)
+                    else:
+                        reg_status = 0
+                    
+                    os.chdir(current_dir)
 
-                        if not reg_status:
-                            excluded_subject.append(index)
+                    if not reg_status:
+                        excluded_subject.append(index)
 
     subj_data_df = subj_data_df.drop(subj_data_df.index[excluded_subject])
     subj_data_df.to_pickle('1_results.pkl')
