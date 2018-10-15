@@ -87,10 +87,13 @@ def main(args=None):
                         label_flag = '-l'
                     contrast = img_prefixe.split('_')[0]
 
+                    reg_status = 1
+                    os.chdir(img_fold)
+
                     out_path = os.path.join(img_fold, 'template2anat.nii.gz')
                     if not os.path.isfile(out_path):
                         print img_path
-                        os.chdir(img_fold)
+                        
                         reg_status = register_to_template(img_path,
                                                             sc_path,
                                                             contrast,
