@@ -74,45 +74,42 @@ def main(args=None):
     for index, row in subj_data_df.iterrows():
         image_lst = center_dct[row.center]
         subj_fold = os.path.join(path_data, row.subject, 'spinalcord')
-        if os.path.isdir(subj_fold):
-            for img_prefixe in image_lst:
-                img_fold = os.path.join(subj_fold, img_prefixe)
-                if os.path.isdir(subj_fold):
-                    img_path = os.path.join(img_fold, img_prefixe + '.nii.gz')
-                    sc_path = os.path.join(img_fold, img_prefixe + '_seg_manual.nii.gz')
-                    label_path = os.path.join(img_fold, 'labels_disc.nii.gz')
-                    label_flag = '-ldisc'
-                    if not os.path.isfile(label_path):
-                        label_path = os.path.join(img_fold, 'labels_vert.nii.gz')
-                        label_flag = '-l'
-                    contrast = img_prefixe.split('_')[0]
+        for img_prefixe in image_lst:
+            img_fold = os.path.join(subj_fold, img_prefixe)
+            img_path = os.path.join(img_fold, img_prefixe + '.nii.gz')
+            sc_path = os.path.join(img_fold, img_prefixe + '_seg_manual.nii.gz')
+            label_path = os.path.join(img_fold, 'labels_disc.nii.gz')
+            label_flag = '-ldisc'
+            if not os.path.isfile(label_path):
+                label_path = os.path.join(img_fold, 'labels_vert.nii.gz')
+                label_flag = '-l'
+            contrast = img_prefixe.split('_')[0]
 
-                    reg_status = 1
-                    os.chdir(img_fold)
+            reg_status = 1
+            os.chdir(img_fold)
+            print img_fold
 
-                    out_path = os.path.join(img_fold, 'template2anat.nii.gz')
-                    if not os.path.isfile(out_path):
-                        print img_path
-                        
-                        reg_status = register_to_template(img_path,
-                                                            sc_path,
-                                                            contrast,
-                                                            label_path,
-                                                            label_flag)
-                        
-                    atlas_path = os.path.join(img_fold, 'label')
-                    warping_field_path = os.path.join(img_fold, 'warp_template2anat.nii.gz')
-                    if not os.path.isdir(atlas_path) and os.path.isfile(warping_field_path):
-                        warp_template(img_path,
-                                        warping_field_path,
-                                        path_qc)
-                    else:
-                        reg_status = 0
-                    
-                    os.chdir(current_dir)
+            out_path = os.path.join(img_fold, 'template2anat.nii.gz')
+            if not os.path.isfile(out_path):                
+                reg_status = register_to_template(img_path,
+                                                    sc_path,
+                                                    contrast,
+                                                    label_path,
+                                                    label_flag)
+                
+            atlas_path = os.path.join(img_fold, 'label')
+            warping_field_path = os.path.join(img_fold, 'warp_template2anat.nii.gz')
+            if not os.path.isdir(atlas_path) and os.path.isfile(warping_field_path):
+                warp_template(img_path,
+                                warping_field_path,
+                                path_qc)
+            else:
+                reg_status = 0
+            
+            os.chdir(current_dir)
 
-                    if not reg_status:
-                        excluded_subject.append(index)
+            if not reg_status:
+                excluded_subject.append(index)
 
     subj_data_df = subj_data_df.drop(subj_data_df.index[excluded_subject])
     subj_data_df.to_pickle('1_results.pkl')
