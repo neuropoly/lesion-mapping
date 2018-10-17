@@ -4,11 +4,22 @@ Project about quantification of MS lesions in the brain + spinal cord
 ## Dependencies
 - [Spinal Cord Toolbox (SCT)](https://github.com/neuropoly/spinalcordtoolbox)
 
-SCT is used for all preprocessing steps, including spinal cord segmentation, registration of all images on the template space, lesion load quantification.
+SCT is used for all preprocessing steps of the spinal cord data, including cord segmentation, registration into the template space, and lesion load quantification.
 
 Version [v.3.2.4](https://github.com/neuropoly/spinalcordtoolbox/releases/v3.2.4) and above.
 
-- Add Anima or FSL dependency
+- [Anima-Public](https://github.com/Inria-Visages/Anima-Public)
+
+Anima-Public is used for registrating brain data to the MNI space.
+
+Version [v.3.1](https://github.com/Inria-Visages/Anima-Public/tree/v3.1) and above.
+
+- [Anima-Scripts-Public](https://github.com/Inria-Visages/Anima-Scripts-Public)
+
+Anima-Scripts-Public is used for extracting the brain.
+
+Version [v.1.0](https://github.com/Inria-Visages/Anima-Scripts-Public/tree/v1.0) and above.
+
 
 ## Dataset structure
 The dataset should be arranged in a structured fashion, as the following:
@@ -53,6 +64,11 @@ Please save the clinical and demographic information of the dataset into a `csv`
 
 ### Brain processing
 
+- Go into brain scripts folder
+~~~
+cd brain
+~~~
+
 #### Set parameters
 Edit [config_file.py](brain/config_file.py) according to your needs, then save the file.
 - `dct_center`: indicate for each center, the folder names of your structural image (see `struct` in the `Dataset structure` section, e.g. `anat.nii.gz`) and your anatomical image (`anat`, e.g. `flair.nii.gz`)
@@ -89,6 +105,11 @@ This script XXX
 
 ### Spinal cord processing
 
+- Go into spinal cord scripts folder
+~~~
+cd spinalcord
+~~~
+
 #### Set parameters
 Edit [config_file.py](spinalcord/config_file.py) according to your needs, then save the file.
 - `dct_center`: indicate for each center, the folder names of your axial image(s) (see `image_ax` in the `Dataset structure` section)
@@ -119,6 +140,30 @@ for instance:
 python correct_generate_labelling.py 201809201152_incorrect_sc.pkl
 ~~~
 
+#### Register data to the PAM50 template
+Register data to the PAM50 template [REF] then warp the template and the white matter atlas [REF] back to the subject space:
+~~~
+python 1_register_data.py
+~~~
+
+#### Quantify lesion characteristics
+Quantify lesion characteristics in the entire cord as well as in the corticospinal tracts:
+~~~
+python 2_quantify.py
+~~~
+
+Measures:
+- csa [mm2]: mean cross-sectional area of the cord
+- tlv [mm3]: total lesion volume in the entire cord
+- count_*: number of lesions in the entire cord or in one of the region of interest listed below (e.g. count_VCST_R)
+- nlv_*: TLV divided by a volume of interest (e.g. entire cord or one of the region of interest listed below)
+- alv_* [mm3]: absolute lesion volume in one of the region of interest listed below (e.g. alv_VCST_R)
+- extension_CST (%): volume of lesion in the corticospinal tracts divided by the total volume of lesion in the cord
+
+Regions of interest:
+- VCST_R, VCST_L: ventral corticospinal right and left tracts
+- LCST_R, LCST_L : lateral corticospinal right and left tracts
+- CST: corticospinal tracts
 
 ## Licence
 This repository is under a MIT licence.
