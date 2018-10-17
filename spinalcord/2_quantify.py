@@ -132,8 +132,8 @@ def main(args=None):
 
     path_data = config['path_data']
     center_dct = config["dct_center"]
-    path_results_pkl = os.path.join(config["path_results"], 'results.pickle')
-    path_results_csv = os.path.join(config["path_results"], 'results.csv')
+    path_results_pkl = os.path.join(config["path_results"], 'spinalcord_results.pickle')
+    path_results_csv = os.path.join(config["path_results"], 'spinalcord_results.csv')
 
     for index, row in subj_data_df.iterrows():
         image_lst = center_dct[row.center]
@@ -145,19 +145,19 @@ def main(args=None):
         subj_data_df.loc[index, 'csa'] = compute_mean_csa(z_dct)
 
         # lesion count, TLV, NLV
-        subj_data_df.loc[index, 'count'], subj_data_df.loc[index, 'TLV'], subj_data_df.loc[index, 'NLV'], _, _ = compute_lesion_characteristics(z_dct, roi_name='')
+        subj_data_df.loc[index, 'count'], subj_data_df.loc[index, 'tlv'], subj_data_df.loc[index, 'nlv'], _, _ = compute_lesion_characteristics(z_dct, roi_name='')
 
         # Per tract: lesion count, ALV, NLV
         alv_bin, cst_vol = 0, 0
         for tract in TRACTS_DCT:
-            subj_data_df.loc[index, 'count_'+tract], subj_data_df.loc[index, 'TLV_'+tract], subj_data_df.loc[index, 'NLV_'+tract], alv_bin_cur, cst_vol_cur = compute_lesion_characteristics(z_dct, roi_name=TRACTS_DCT[tract])
+            subj_data_df.loc[index, 'count_'+tract], subj_data_df.loc[index, 'alv_'+tract], subj_data_df.loc[index, 'nlv_'+tract], alv_bin_cur, cst_vol_cur = compute_lesion_characteristics(z_dct, roi_name=TRACTS_DCT[tract])
             alv_bin += alv_bin_cur
             cst_vol += cst_vol_cur
 
         # _CST
         subj_data_df.loc[index, 'count_CST'] = sum([subj_data_df.loc[index, 'count_'+tract] for tract in TRACTS_DCT])
-        subj_data_df.loc[index, 'TLV_CST'] = sum([subj_data_df.loc[index, 'TLV_'+tract] for tract in TRACTS_DCT])
-        subj_data_df.loc[index, 'NLV_CST'] = sum([subj_data_df.loc[index, 'TLV_'+tract] for tract in TRACTS_DCT]) / cst_vol
+        subj_data_df.loc[index, 'alv_CST'] = sum([subj_data_df.loc[index, 'alv_'+tract] for tract in TRACTS_DCT])
+        subj_data_df.loc[index, 'nlv_CST'] = sum([subj_data_df.loc[index, 'alv_'+tract] for tract in TRACTS_DCT]) / cst_vol
 
         # Extension
         subj_data_df.loc[index, 'extension_CST'] = alv_bin * 100. / subj_data_df.loc[index, 'TLV']
