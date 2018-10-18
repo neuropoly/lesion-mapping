@@ -19,7 +19,7 @@ from config_file import config
 
 PARAM_REG = 'step=1,type=seg,algo=centermass,metric=MeanSquares,slicewise=1:step=2,type=seg,algo=bsplinesyn,metric=MeanSquares,slicewise=1,iter=3'
 
-def register_to_template(img_path, sc_path, contrast, label_path, label_flag):
+def register_to_template(img_path, sc_path, contrast, label_path, label_flag, ofolder, qc_folder):
 
     registration_status = 1
 
@@ -28,7 +28,9 @@ def register_to_template(img_path, sc_path, contrast, label_path, label_flag):
                                             '-s', sc_path,
                                             '-c', contrast,
                                             label_flag, label_path,
-                                            '-param', PARAM_REG])
+                                            '-param', PARAM_REG,
+                                            '-ofolder', ofolder,
+                                            '-qc', qc_folder])
     except:
         im_ana, im_seg = Image(img_path), Image(sc_path)
         im_seg_new = im_ana.copy() # copy hdr --> segmentation
@@ -46,7 +48,9 @@ def register_to_template(img_path, sc_path, contrast, label_path, label_flag):
                                                 '-s', sc_path,
                                                 '-c', contrast,
                                                 label_flag, label_path,
-                                                '-param', PARAM_REG])
+                                                '-param', PARAM_REG,
+                                                '-ofolder', ofolder,
+                                                '-qc', qc_folder])
         except:
             registration_status = 0
             sct.printv('ERROR: Could not complete registration for anat. --> template! Path: %s' % img_path)
@@ -54,10 +58,11 @@ def register_to_template(img_path, sc_path, contrast, label_path, label_flag):
     return registration_status
 
 
-def warp_template(dest_img, warping_field, qc_folder):
+def warp_template(dest_img, warping_field, ofolder, qc_folder):
 
     sct.run(['sct_warp_template', '-d', dest_img,
                                     '-w', warping_field,
+                                    '-ofolder', ofolder,
                                     '-qc', qc_folder])
 
 
@@ -68,7 +73,7 @@ def main(args=None):
     path_data = config['path_data']
     center_dct = config["dct_center"]
     path_qc = os.path.join(config["path_results"], 'qc')
-    current_dir = os.getcwd()
+    # current_dir = os.getcwd()
 
     excluded_subject = []
     for index, row in subj_data_df.iterrows():
@@ -76,9 +81,11 @@ def main(args=None):
         subj_fold = os.path.join(path_data, row.subject, 'spinalcord')
         reg_status = 1
         if os.path.isdir(subj_fold):
+            subj_fold_qc = os.path.join(path_data, row.subject, row.subject+'_spinalcord') # Used to have the subject name in the QC
+            os.rename(subj_fold, subj_fold_qc)
             for img_prefixe in image_lst:
-                img_fold = os.path.join(subj_fold, img_prefixe)
-                if os.path.isdir(subj_fold):
+                img_fold = os.path.join(subj_fold_qc, img_prefixe)
+                if os.path.isdir(img_fold):
                     img_path = os.path.join(img_fold, img_prefixe + '.nii.gz')
                     sc_path = os.path.join(img_fold, img_prefixe + '_seg_manual.nii.gz')
                     label_path = os.path.join(img_fold, 'labels_disc.nii.gz')
@@ -88,8 +95,6 @@ def main(args=None):
                         label_flag = '-l'
                     contrast = img_prefixe.split('_')[0]
 
-                    os.chdir(img_fold)
-
                     out_path = os.path.join(img_fold, 'template2anat.nii.gz')
                     if not os.path.isfile(out_path):
                         print img_fold
@@ -97,19 +102,21 @@ def main(args=None):
                                                             sc_path,
                                                             contrast,
                                                             label_path,
-                                                            label_flag)
+                                                            label_flag,
+                                                            img_fold,
+                                                            path_qc)
                         
                     atlas_path = os.path.join(img_fold, 'label')
                     warping_field_path = os.path.join(img_fold, 'warp_template2anat.nii.gz')
                     if not os.path.isdir(atlas_path) and os.path.isfile(warping_field_path):
                         warp_template(img_path,
                                         warping_field_path,
+                                        atlas_path,
                                         path_qc)
                         if not os.path.isdir(atlas_path):
                             reg_status = 0
-                    
-                    os.chdir(current_dir)
 
+        os.rename(subj_fold_qc, subj_fold)
         if not reg_status:
             excluded_subject.append(index)
 
