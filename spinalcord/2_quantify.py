@@ -2,6 +2,18 @@
 #
 # Goal: To quantify lesion characteristics.
 #
+# Measures:
+# - csa [mm2]: mean cross-sectional area of the cord
+# - tlv [mm3]: total lesion volume in the entire cord
+# - count_*: number of lesions in the entire cord or in one of the region of interest listed below (e.g. count_VCST_R)
+# - nlv_*: TLV divided by a volume of interest (e.g. entire cord or one of the region of interest listed below)
+# - alv_* [mm3]: absolute lesion volume in one of the region of interest listed below (e.g. alv_VCST_R)
+# - extension_CST (%): volume of lesion in the corticospinal tracts divided by the total volume of lesion in the cord
+#
+# Regions of interest:
+# - VCST_R, VCST_L: ventral corticospinal right and left tracts
+# - LCST_R, LCST_L : lateral corticospinal right and left tracts
+# - CST: corticospinal tracts
 #
 # Created: 2018-10-15
 # Modified: 2018-10-15
