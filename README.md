@@ -146,11 +146,15 @@ Register data to the PAM50 template [REF] then warp the template and the white m
 python 1_register_data.py
 ~~~
 
+Please check the QC of the registration provided in the `path_results/qc` folder by opening `index.html` file.
+
 #### Quantify lesion characteristics
 Quantify lesion characteristics in the entire cord as well as in the corticospinal tracts:
 ~~~
 python 2_quantify.py
 ~~~
+
+It creates a csv and a pickle file (`spinalcord_results.*`) in the `path_results` folder.
 
 Measures:
 - csa [mm2]: mean cross-sectional area of the cord
