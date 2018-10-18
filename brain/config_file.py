@@ -22,3 +22,7 @@ config["path_data"] = "/home/charley/data/brain_spine/data_processing/"
 config["csv_clinicalInfo"] = "/home/charley/data/brain_spine/clinical_data.csv"
 
 config["path_results"] = "/home/charley/data/brain_spine/results/"
+
+config["path_smatt_folder"] = "/home/charley/Documents/anne/SMATT_website/"
+config["path_brainstem_folder"] = "/home/charley/Documents/anne/Brainstem23BundleAtlas/"
+config["path_atlases"] = "/home/charley/data/brain_spine/atlases/"
