@@ -11,6 +11,7 @@
 
 import os
 import pandas as pd
+import numpy as np
 
 import sct_utils as sct
 from spinalcordtoolbox.image import Image
@@ -66,6 +67,11 @@ def warp_template(dest_img, warping_field, ofolder, qc_folder):
                                     '-qc', qc_folder])
 
 
+def exist_gap(lvl_filename_lst):
+    lvl_lvl_lst = [list(np.unique(Image(filename).data)) for filename in lvl_filename_lst]
+    lvl_lst = list(set([int(l) for sublist in lvl_lvl_lst for l in sublist]))
+    return sorted(lvl_lst) !=  range(min(lvl_lst), max(lvl_lst)+1)
+
 def main(args=None):
 
     subj_data_df = pd.read_pickle('0_results.pkl')
@@ -73,9 +79,8 @@ def main(args=None):
     path_data = config['path_data']
     center_dct = config["dct_center"]
     path_qc = os.path.join(config["path_results"], 'qc')
-    # current_dir = os.getcwd()
 
-    excluded_subject = []
+    excluded_subject, gap_subject_lst = [], []
     for index, row in subj_data_df.iterrows():
         image_lst = center_dct[row.center]
         subj_fold = os.path.join(path_data, row.subject, 'spinalcord')
@@ -97,7 +102,7 @@ def main(args=None):
 
                     out_path = os.path.join(img_fold, 'template2anat.nii.gz')
                     if not os.path.isfile(out_path):
-                        print img_fold
+                        print row.subject, img_prefixe
                         reg_status = register_to_template(img_path,
                                                             sc_path,
                                                             contrast,
@@ -116,12 +121,19 @@ def main(args=None):
                         if not os.path.isdir(atlas_path):
                             reg_status = 0
 
+            if exist_gap([os.path.join(subj_fold_qc, img_prefixe, 'label', 'template', 'PAM50_levels.nii.gz') for img_prefixe in image_lst]):
+                gap_subject_lst.append(row.subject)
+
         os.rename(subj_fold_qc, subj_fold)
         if not reg_status:
             excluded_subject.append(index)
 
     subj_data_df = subj_data_df.drop(subj_data_df.index[excluded_subject])
     subj_data_df.to_pickle('1_results.pkl')
+
+    if len(gap_subject_lst):
+        print '\n\nPlease check the following subjects, where we detected a gap in terms of vertebral distribution after registration on the PAM50 template.'
+        print '\n\t- '.join(gap_subject_lst)
 
 if __name__ == "__main__":
     main()
