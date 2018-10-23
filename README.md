@@ -20,6 +20,10 @@ Anima-Scripts-Public is used for extracting the brain.
 
 Version [v.1.0](https://github.com/Inria-Visages/Anima-Scripts-Public/tree/v1.0) and above.
 
+## Download data
+- [S-MATT](http://lrnlab.org/)
+
+- [Brainstem23BundleAtlas](https://www.nitrc.org/frs/download.php/10255/Brainstem23BundleAtlas.zip)
 
 ## Dataset structure
 The dataset should be arranged in a structured fashion, as the following:
