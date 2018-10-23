@@ -172,7 +172,7 @@ def main(args=None):
         subj_data_df.loc[index, 'nlv_CST'] = sum([subj_data_df.loc[index, 'alv_'+tract] for tract in TRACTS_DCT]) / cst_vol
 
         # Extension
-        subj_data_df.loc[index, 'extension_CST'] = alv_bin * 100. / subj_data_df.loc[index, 'TLV']
+        subj_data_df.loc[index, 'extension_CST'] = alv_bin * 100. / subj_data_df.loc[index, 'tlv']
 
     subj_data_df.to_csv(path_results_csv)
     subj_data_df.to_pickle(path_results_pkl)
