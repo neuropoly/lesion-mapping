@@ -1,106 +1,145 @@
 #!/usr/bin/env python
 #
-# Goal: To quantify lesion characteristics.
+# Goal: To quantify lesion characteristics in both brain and brainstem regions.
 #
-# Steps:
-#		1. Custom brain and brainstem atlases for the purpose of this study.
+# Measures:
+# - tbv [mm3]: total brain volume (brain + brainstem)
+# - tlv_* [mm3]: total lesion volume (brain + brainstem)
+# - count_*: number of lesions
+# - alv_* [mm3]: absolute lesion volume in one of the region of interest listed below
+# - nlv_*: alv_* divided by a volume of interest
+# - extension_motor (%): volume of lesion in the motor tracts divided by the total volume of lesion in the cord
 #
-# XXX
+# Regions of interest:
+# - brain, brainstem, brain_brainstem: brain, brainstem, and brain+brainstem areas
+# - brain_motor, brainstem_motor, brain_brainstem_motor: brain, brainstem, and brain+brainstem motor tracts areas
+# - brainstem_CST_R, brainstem_CST_L: corticospinal right and left tracts in the brainstem
+# - brain_M1_R, brain_M1_L:
+# - brain_PMd_R, brain_PMd_L:
+# - brain_PMv_R, brain_PMv_L:
+# - brain_preSMA_R, brain_preSMA_L:
+# - brain_S1_R, brain_S1_L:
+# - brain_SMA_R, brain_SMA_L:
 #
-# Created: 2018-10-18
-# Modified: 2018-10-18
+# Created: 2018-10-15
+# Modified: 2018-10-26
 # Contributors: Charley Gros
-
 
 import os
 import numpy as np
+import pandas as pd
+from skimage.measure import label
 
-from spinalcordtoolbox.image import Image, zeros_like
+from spinalcordtoolbox.image import Image
 
 from config_file import config
 
-BRAINSTEM_DCT = {'CST_R': 'CSTR_Atlas.nii.gz',
-				'CST_L': 'CSTL_Atlas.nii.gz',
-				'CST': ''}
-BRAMSTEM_ZTOP = 51
 
-BRAIN_DCT = {'M1_R': 'Right-M1-S-MATT.nii',
-			'M1_L': 'Left-M1-S-MATT.nii',
-			'PMd_R': 'Right-PMd-S-MATT.nii',
-			'PMd_L': 'Left-PMd-S-MATT.nii',
-			'PMv_R': 'Right-PMv-S-MATT.nii',
-			'PMv_L': 'Left-PMv-S-MATT.nii',
-			'preSMA_R': 'Right-preSMA-S-MATT.nii',
-			'preSMA_L': 'Left-preSMA-S-MATT.nii',
-			'S1_R': 'Right-S1-S-MATT.nii',
-			'S1_L': 'Left-S1-S-MATT.nii',
-			'SMA_R': 'Left-SMA-S-MATT.nii',
-			'SMA_L': 'Right-SMA-S-MATT.nii'}
+def z_brainstem(image_fold):
+    brainstem_path = os.path.join(image_fold, 'label', 'brainstem_CST.nii.gz')
+    
+    brainstem_im = Image(brainstem_path)
+    brainstem_im.change_orientation('RPI')
+    z_brainstem_lst = list(set(np.where(brainstem_im.data)[2]))
+    del brainstem_im
+
+    return np.min(z_brainstem_lst), np.max(z_brainstem_lst)
 
 
-def custom_brainstem(ifolder, ofolder):
-	cst_r_ifile = os.path.join(ifolder, BRAINSTEM_DCT['CST_R'])
-	cst_l_ifile = os.path.join(ifolder, BRAINSTEM_DCT['CST_L'])
-
-	cst_r_ofile = os.path.join(ofolder, 'brainstem_CST_R.nii.gz')
-	cst_l_ofile = os.path.join(ofolder, 'brainstem_CST_L.nii.gz')
-	cst_ofile = os.path.join(ofolder, 'brainstem_CST.nii.gz')
-
-	cst_r_im, cst_l_im = Image(cst_r_ifile), Image(cst_l_ifile)
-	cst_im = zeros_like(cst_r_im)
-
-	cst_r_im.data[:, :, BRAMSTEM_ZTOP+1:] = 0.
-	cst_l_im.data[:, :, BRAMSTEM_ZTOP+1:] = 0.
-
-	cst_im.data = cst_r_im.data + cst_l_im.data
-	cst_im.data[cst_im.data > 1.0] = 1.0
-	
-	cst_r_im.save(cst_r_ofile)
-	cst_l_im.save(cst_l_ofile)
-	cst_im.save(cst_ofile)
-	del cst_r_im, cst_l_im, cst_im
+def convert_nrrd2niigz(fname_in):
+    if not os.path.isfile(fname_in):
+        brain_mask_nrrd = fname_in.split('.nii.gz')[0] + '.nrrd'
+        os.system('animaConvertImage -i '+brain_mask_nrrd+' -o '+fname_in)
 
 
-def custom_brain(ifolder, ofolder):
-	ifname_dct = {}
-	for roi in BRAIN_DCT:
-		ifname_dct[roi] = os.path.join(ifolder, BRAIN_DCT[roi])
+def compute_tbv(fname_in):
+    convert_nrrd2niigz(fname_in)
 
-	sum_roi_im = sum([Image(ifname_dct[roi]).data for roi in ifname_dct])
+    img = Image(fname_in).change_orientation('RPI')
+    res_x, res_y, res_z = img.dim[4:7]
+    data = img.data
+    del img
 
-	for roi in ifname_dct:
-		ofname = os.path.join(ofolder, 'brain_' + roi + '.nii.gz')
+    data = (data > 0.0).astype(np.int_)
+    return np.sum(data) * res_x * res_y * res_z
 
-		i_im = Image(ifname_dct[roi])
-		o_im = zeros_like(i_im)
-		o_im.data = i_im.data
-		del i_im
 
-		o_im.data[:, :, :BRAMSTEM_ZTOP+1] = 0.
-		o_im.data = np.divide(o_im.data * 1., sum_roi_im)
+def compute_lesion_characteristics(img_fold, roi_name=''):
+    if roi_name == '':
+        mask_path = os.path.join(img_fold, img_fold.split('/')[-1]+'_brainMask.nii.gz')
+        convert_nrrd2niigz(mask_path)
+    else:
+        mask_path = os.path.join(img_fold, 'label', roi_name+'.nii.gz')
 
-		o_im.save(ofname)
-		del o_im
+    lesion_path = os.path.join(img_fold, img_fold.split('/')[-1]+'_lesion_manual.nii.gz')
+
+    mask_im = Image(mask_path).change_orientation('RPI')
+    lesion_im = Image(lesion_path).change_orientation('RPI')
+
+    if roi_name == '':
+        z_min, _ = z_brainstem(img_fold)
+        mask_data = mask_im.data[:, :, z_min:]
+        lesion_data = lesion_im.data[:, :, z_min:]
+    else:
+        mask_data, lesion_data = mask_im.data, lesion_im.data
+
+    res_x, res_y, res_z = lesion_im.dim[4:7]
+    del mask_im, lesion_im
+
+    lesion_data = lesion_data * mask_data
+
+    count = label((lesion_data > 0).astype(np.int), neighbors=8, return_num=True)[1]
+    tlv = np.sum(lesion_data) * res_x * res_y * res_z
+    mask_vol = np.sum(mask_data) * res_x * res_y * res_z
+    nlv = tlv * 1.0 / mask_vol
+    return count, tlv, nlv
 
 
 def main():
-	ofolder = config["path_atlases"]
-	if not os.path.isdir(ofolder):
-		os.makedirs(ofolder)
 
-	brainstem_atlas_ifolder = config["path_brainstem_folder"]
-	brainstem_atlas_ofolder = os.path.join(ofolder, 'brainstem')
-	if not os.path.isdir(brainstem_atlas_ofolder):
-		os.makedirs(brainstem_atlas_ofolder)
-		custom_brainstem(brainstem_atlas_ifolder, brainstem_atlas_ofolder)
+    subj_data_df = pd.read_pickle('1_results.pkl')
 
-	brain_atlas_ifolder = config["path_smatt_folder"]
-	brain_atlas_ofolder = os.path.join(ofolder, 'brain')
-	if not os.path.isdir(brain_atlas_ofolder):
-		os.makedirs(brain_atlas_ofolder)
-		custom_brain(brain_atlas_ifolder, brain_atlas_ofolder)
+    path_data = config['path_data']
+    center_dct = config["dct_center"]
+    path_results_pkl = os.path.join(config["path_results"], 'brain_brainstem_results.pickle')
+    path_results_csv = os.path.join(config["path_results"], 'brain_brainstem_results.csv')
 
+    roi_lst = ['', '_brain_motor',
+            '_brainstem_CST', '_brainstem_CST_R', '_brainstem_CST_L',
+            '_brain_M1_R', '_brain_M1_L', '_brain_PMd_R', '_brain_PMd_L',
+            '_brain_PMv_R', '_brain_PMv_L', '_brain_preSMA_R', '_brain_preSMA_L',
+            '_brain_S1_R', '_brain_S1_L', '_brain_SMA_R', '_brain_SMA_L']
+    atlas_pref_lst = ['', 'brain', 'brainstem_CST', 'brainstem_CST_R', 'brainstem_CST_L',
+                    'brain_M1_R', 'brain_M1_L', 'brain_PMd_R', 'brain_PMd_L',
+                    'brain_PMv_R', 'brain_PMv_L', 'brain_preSMA_R', 'brain_preSMA_L',
+                    'brain_S1_R', 'brain_S1_L', 'brain_SMA_R', 'brain_SMA_L']
 
+    for index, row in subj_data_df.iterrows():
+        subj_fold = os.path.join(path_data, row.subject, 'brain')
+
+        # tbv
+        t1_fold = os.path.join(subj_fold, center_dct[row.center]["struct"])
+        t1_brain_mask_nii = os.path.join(t1_fold, center_dct[row.center]["struct"]+'_brainMask.nii.gz')
+        subj_data_df.loc[index, 'tbv'] = compute_tbv(t1_brain_mask_nii)
+
+        flair_fold = os.path.join(subj_fold, center_dct[row.center]["anat"])
+        
+        # lesion count, TLV, NLV        
+        for roi, atlas_pref in zip(roi_lst, atlas_pref_lst):
+            count_cur, tlv_cur, nlv_cur = compute_lesion_characteristics(flair_fold, roi_name=atlas_pref)
+            subj_data_df.loc[index, 'count'+roi] = count_cur
+            if roi == '':
+                subj_data_df.loc[index, 'tlv'] = tlv_cur
+            else:
+                subj_data_df.loc[index, 'alv'+roi] = tlv_cur
+            subj_data_df.loc[index, 'nlv'+roi] = nlv_cur
+
+        # extension
+        if subj_data_df.loc[index, 'tlv']:
+            subj_data_df.loc[index, 'extension_motor'] = (subj_data_df.loc[index, 'alv_brain_motor']+subj_data_df.loc[index, 'alv_brainstem_CST']) * 100. / subj_data_df.loc[index, 'tlv']
+    
+    subj_data_df.to_csv(path_results_csv)
+    subj_data_df.to_pickle(path_results_pkl)
 
 if __name__ == "__main__":
     main()
