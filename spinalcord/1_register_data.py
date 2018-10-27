@@ -12,6 +12,7 @@
 import os
 import pandas as pd
 import numpy as np
+import commands
 
 import sct_utils as sct
 from spinalcordtoolbox.image import Image
@@ -72,6 +73,20 @@ def exist_gap(lvl_filename_lst):
     lvl_lst = list(set([int(l) for sublist in lvl_lvl_lst for l in sublist]))
     return sorted(lvl_lst) !=  range(min(lvl_lst), max(lvl_lst)+1)
 
+
+def merge_images_in_template(fname_out, subj_fold, img_lst, mask_suffixe):
+    mask_lst = [os.path.join(subj_fold, img_suff, img_suff+'_'+mask_suffixe) for img_suff in img_lst]
+    warp_lst = [os.path.join(subj_fold, img_suff, 'warp_anat2template.nii.gz') for img_suff in img_lst]
+    dest = os.path.join(commands.getstatusoutput('echo $SCT_DIR')[1], 'data/PAM50/template/PAM50_t2.nii.gz')
+
+    sct.run('sct_merge_images -i ' + ','.join(mask_lst) +
+                        ' -d ' + dest +
+                        ' -w ' + ','.join(warp_lst) +
+                        ' -o ' + fname_out)
+
+    return 1 if os.path.isfile(fname_out) else 0
+
+
 def main(args=None):
 
     subj_data_df = pd.read_pickle('0_results.pkl')
@@ -84,8 +99,9 @@ def main(args=None):
     for index, row in subj_data_df.iterrows():
         image_lst = center_dct[row.center]
         subj_fold = os.path.join(path_data, row.subject, 'spinalcord')
-        reg_status = 1
+        
         if os.path.isdir(subj_fold):
+            reg_status = 1
             subj_fold_qc = os.path.join(path_data, row.subject, row.subject+'_spinalcord') # Used to have the subject name in the QC
             os.rename(subj_fold, subj_fold_qc)
             for img_prefixe in image_lst:
@@ -124,9 +140,22 @@ def main(args=None):
             if exist_gap([os.path.join(subj_fold_qc, img_prefixe, 'label', 'template', 'PAM50_levels.nii.gz') for img_prefixe in image_lst]):
                 gap_subject_lst.append(row.subject)
 
-        os.rename(subj_fold_qc, subj_fold)
-        if not reg_status:
-            excluded_subject.append(index)
+            lesion_mask_path = os.path.join(subj_fold_qc, 'lesion_mask_template.nii.gz')
+            cord_mask_path = os.path.join(subj_fold_qc, 'cord_mask_template.nii.gz')
+            if not os.path.isfile(lesion_mask_path):
+                reg_status = merge_images_in_template(lesion_mask_path,
+                                                        subj_fold_qc,
+                                                        image_lst,
+                                                        'lesion_manual.nii.gz')
+            if not os.path.isfile(cord_mask_path):
+                reg_status = merge_images_in_template(cord_mask_path,
+                                                        subj_fold_qc,
+                                                        image_lst,
+                                                        'seg_manual.nii.gz')
+
+            os.rename(subj_fold_qc, subj_fold)
+            if not reg_status:
+                excluded_subject.append(index)
 
     subj_data_df = subj_data_df.drop(subj_data_df.index[excluded_subject])
     subj_data_df.to_pickle('1_results.pkl')
