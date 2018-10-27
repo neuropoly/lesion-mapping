@@ -1,11 +1,11 @@
 # ms_brain_spine
 Project about quantification of MS lesions in the brain + spinal cord
 
-- [Dependencies](##Dependencies)
-- [Dataset structure](##Dataset-structure)
-- [How to run](##How-to-run)
-- [References](##References)
-- [License](##License)
+- [Dependencies](#dependencies)
+- [Dataset structure](#dataset-structure)
+- [How to run](#how-to-run)
+- [References](#references)
+- [License](#license)
 
 ## Dependencies
 - [Spinal Cord Toolbox (SCT)](https://github.com/neuropoly/spinalcordtoolbox)
