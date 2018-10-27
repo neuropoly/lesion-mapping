@@ -27,7 +27,7 @@ if [ ! -f flair/mni2flair.xml ]; then
 	# Rigid registration of T1 to the MNI152_T1_1mm: T1_rig
 	animaPyramidalBMRegistration -r ${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz -m t1/t1_brain.nii.gz -o t1/t1_mni_rig.nii.gz -O t1/t12mni_rig.txt
 
-	# # Affine registration of T1_rig to the MNI152_T1_1mm: T1_aff
+	# Affine registration of T1_rig to the MNI152_T1_1mm: T1_aff
 	animaPyramidalBMRegistration -r ${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz -m t1/t1_mni_rig.nii.gz --ot 2 -o t1/t1_mni_aff.nii.gz -O t1/t12mni_aff.txt
 
 	# Non Linear registration of T1 to the MNI152_T1_1mm: T1_nonlin

@@ -1,6 +1,12 @@
 # ms_brain_spine
 Project about quantification of MS lesions in the brain + spinal cord
 
+- [Dependencies](##Dependencies)
+- [Dataset structure](##Dataset-structure)
+- [How to run](##How-to-run)
+- [References](##References)
+- [License](##License)
+
 ## Dependencies
 - [Spinal Cord Toolbox (SCT)](https://github.com/neuropoly/spinalcordtoolbox)
 
@@ -20,7 +26,7 @@ Anima-Scripts-Public is used for extracting the brain.
 
 Version [v.1.0](https://github.com/Inria-Visages/Anima-Scripts-Public/tree/v1.0) and above.
 
-## Download data
+### Download data
 - [S-MATT](http://lrnlab.org/)
 
 - [Brainstem23BundleAtlas](https://www.nitrc.org/frs/download.php/10255/Brainstem23BundleAtlas.zip)
@@ -31,13 +37,13 @@ The dataset should be arranged in a structured fashion, as the following:
 - subject_name/
 	- brain/
 		- anat/
-			- anat.nii.gz # raw image
+			- anat.nii.gz # e.g. FLAIR
 			- anat_lesion_manual.nii.gz # lesion mask (binary)
-		- struct/
+		- struct/ # e.g. isotropic T1-w
 			- struct.nii.gz
 	- spinalcord/
 	    - image_ax/
-			- image_ax.nii.gz # raw image
+			- image_ax.nii.gz # e.g. axial T2*-w
 			- image_ax_seg_manual.nii.gz # spinal cord mask (binary)
 			- image_ax_lesion_manual.nii.gz # lesion mask (binary)
 			- labels_disc.nii.gz # disc label (2 labels, i.e. 2 voxels)
@@ -65,6 +71,7 @@ Please save the clinical and demographic information of the dataset into a `csv`
 - `disease_dur`: disease duration of the subject (year)
 - `edss`: EDSS score of the subject (float between 0 and 10)
 - `phenotype`: phenotype of the subject: `CIS`, `RR`, `SP` or `PP`
+- ...
 
 ### Brain processing
 
@@ -79,6 +86,10 @@ Edit [config_file.py](brain/config_file.py) according to your needs, then save t
 - `path_data`: folder path where your data is stored (see also `Dataset structure` section)
 - `csv_clinicalInfo`: path towards the csv containing the clinical information of the dataset
 - `path_results`: folder path where to save the results
+- `path_anima_brain_extraction`: folder path to the Anima script for brain extraction
+- `path_smatt_folder`: folder path to the downloaded SMATT atlas
+- `path_brainstem_folder`: folder path to the downloaded brainstem atlas
+- `path_atlases`: folder path where to save the customed atlases
 
 #### Check data
 Check data availability and integrity:
@@ -105,7 +116,41 @@ Register data by running:
 ~~~
 python 1_register_data.py
 ~~~
-This script XXX
+This script performs a muti-step registration to register the `anat` image to the MNI152_T1_1mm space:
+1. Brain extraction
+2. Linear registration of `anat` image to `struct` image
+3. Registration of the `struct` image to the MNI152_T1_1mm space
+	- Rigid
+	- Affine
+	- Non-linear
+
+Then, it warps the atlases into the `anat` space.
+
+#### Quantify lesion characteristics
+Quantify lesion characteristics in the brain as well as in the motor and corticospinal tracts:
+~~~
+python 2_quantify.py
+~~~
+
+It creates a csv and a pickle file (`brain_brainstem_results.*`) in the `path_results` folder.
+
+Measures:
+- tbv [mm3]: total brain volume (computed on the `struct` image)
+- tlv [mm3]: total lesion volume in the brain
+- count_*: number of lesions in the brain or in one of the region of interest listed below (e.g. count_M1_R)
+- nlv_*: TLV divided by a volume of interest
+- alv_* [mm3]: absolute lesion volume in one of the region of interest listed below
+- extension_motor (%): volume of lesion in the corticospinal and tracts divided by the total volume of lesion in the cord
+
+Regions of interest:
+- brain_motor, brainstem_CST: brain motor tracts, brainstem corticospinal tracts
+- brainstem_CST_R, brainstem_CST_L: corticospinal right and left tracts in the brainstem
+- brain_M1_R, brain_M1_L:
+- brain_PMd_R, brain_PMd_L:
+- brain_PMv_R, brain_PMv_L:
+- brain_preSMA_R, brain_preSMA_L:
+- brain_S1_R, brain_S1_L:
+- brain_SMA_R, brain_SMA_L:
 
 ### Spinal cord processing
 
@@ -173,6 +218,12 @@ Regions of interest:
 - LCST_R, LCST_L : lateral corticospinal right and left tracts
 - CST: corticospinal tracts
 
-## Licence
-This repository is under a MIT licence.
+## References
+[ todo ]
+- SCT, Anima, Atlases (smatt, brainstem, pam50, wm_sc_atlas)
+- eden
+- commonwick, gros
 
+## Licence
+The MIT License (MIT)
+Copyright (c) 2018 École Polytechnique, Université de Montréal
