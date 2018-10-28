@@ -53,3 +53,10 @@ if [ ! -d flair/label ]; then
 		animaApplyTransformSerie -g flair/flair_brain.nii.gz -i ${f} -t flair/mni2flair.xml -n linear -o flair/label/$(basename "$f")
 	done
 fi
+
+if [ ! -f flair/flair_lesion_manual_mni.nii.gz ]; then
+	# Warp the lesion mask from flair to MNI space
+	animaApplyTransformSerie -i flair/flair_lesion_manual.nii.gz -g ${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz -t flair/flair2mni.xml -n linear -o flair/flair_lesion_manual_mni.nii.gz
+	# Warp the brain mask from flair to MNI space
+	animaApplyTransformSerie -i flair/flair_brainMask.nii.gz -g ${FSLDIR}/data/standard/MNI152_T1_1mm_brain.nii.gz -t flair/flair2mni.xml -n linear -o flair/flair_brainMask_mni.nii.gz
+fi

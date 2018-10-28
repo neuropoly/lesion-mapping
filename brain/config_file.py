@@ -3,9 +3,7 @@
 # This file contains the main hardcoded variables and input paths used for the processing.
 #
 # Charley Gros 2018-09-20
-# Modified: 2018-10-01
-
-import os
+# Modified: 2018-10-26
 
 config = dict()
 

@@ -34,9 +34,10 @@ def main(args=None):
         anat_name = center_dct[row.center]['anat']
         subj_fold = os.path.join(path_data, row.subject, 'brain')
         flair_mni = os.path.join(subj_fold, anat_name, anat_name + '_mni.nii.gz')
+        flair_lesion_mni = os.path.join(subj_fold, anat_name, anat_name + '_lesion_manual_mni.nii.gz')
         label_folder = os.path.join(subj_fold, anat_name, 'label')
         brain_atlas_reg_path = os.path.join(subj_fold, anat_name, 'label', 'brain.nii.gz')
-        if not os.path.isdir(label_folder):
+        if not os.path.isfile(flair_mni) or not os.path.isdir(label_folder) or not os.path.isfile(flair_lesion_mni):
             print flair_mni
             os.system('./1_register_data.sh ' + subj_fold + ' ' + path_atlases + ' ' + path_script_brain_extraction)
             os.chdir(current_dir)
