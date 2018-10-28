@@ -30,16 +30,17 @@ def clean_LFM(fname_out, fname_cord, fname_lvl):
     z_bottom = np.min(list(set(np.where(lvl_data == 7)[2])))
     img.data[:, :, :z_bottom] = 0
     img.data[:, :, z_top:] = 0
+    img.data[np.isnan(img.data)]=0.0
+    img.data[img.data>1.0]=0.0
 
     img.save(fname_out)
     del img
 
 
 def initialise_sumFile(fname_out, fname_standard):
-    if not os.path.isfile(fname_out):
-        img_out = zeros_like(Image(fname_standard))
-        img_out.save(fname_out)
-        del img_out
+    img_out = zeros_like(Image(fname_standard))
+    img_out.save(fname_out)
+    del img_out
 
 
 def add_mask(fname_new, fname_out):
@@ -95,7 +96,6 @@ def main(args=None):
     subj_data_df = pd.read_pickle('1_results.pkl')
 
     path_data = config['path_data']
-    center_dct = config["dct_center"]
     path_lfm_fold = os.path.join(config["path_results"], 'LFM')
     if not os.path.isdir(path_lfm_fold):
         os.makedirs(path_lfm_fold)
@@ -104,8 +104,6 @@ def main(args=None):
     path_lfm_cst = os.path.join(path_lfm_fold, 'spinalcord_LFM_CST.nii.gz')
     if not os.path.isfile(path_lfm) or not os.path.isfile(path_lfm_cst):
         generate_LFM(subj_data_df, path_lfm, path_lfm_cst, path_data)
-
-
 
 if __name__ == "__main__":
     main()
