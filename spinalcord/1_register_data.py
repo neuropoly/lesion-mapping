@@ -79,10 +79,10 @@ def merge_images_in_template(fname_out, subj_fold, img_lst, mask_suffixe):
     warp_lst = [os.path.join(subj_fold, img_suff, 'warp_anat2template.nii.gz') for img_suff in img_lst]
     dest = os.path.join(commands.getstatusoutput('echo $SCT_DIR')[1], 'data/PAM50/template/PAM50_t2.nii.gz')
 
-    sct.run('sct_merge_images -i ' + ','.join(mask_lst) +
-                        ' -d ' + dest +
-                        ' -w ' + ','.join(warp_lst) +
-                        ' -o ' + fname_out)
+    sct.run(['sct_merge_images', '-i', ','.join(mask_lst),
+                        '-d', dest,
+                        '-w', ','.join(warp_lst),
+                        '-o', fname_out])
 
     return 1 if os.path.isfile(fname_out) else 0
 
