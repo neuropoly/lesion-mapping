@@ -29,10 +29,10 @@ from spinalcordtoolbox.image import Image
 
 from config_file import config
 
-TRACTS_DCT = {'LCST_R': 'PAM50_atlas_05.nii.gz',
-                'LCST_L': 'PAM50_atlas_04.nii.gz',
-                'VCST_R': 'PAM50_atlas_23.nii.gz',
-                'VCST_L': 'PAM50_atlas_22.nii.gz'}
+TRACTS_DCT = {'LCST-R': 'PAM50_atlas_05.nii.gz',
+                'LCST-L': 'PAM50_atlas_04.nii.gz',
+                'VCST-R': 'PAM50_atlas_23.nii.gz',
+                'VCST-L': 'PAM50_atlas_22.nii.gz'}
 
 
 def z_slice_levels(levels_path):
@@ -108,7 +108,7 @@ def compute_mean_csa(z_dct):
 
 
 def compute_lesion_characteristics(z_dct, roi_name=''):
-    count_lst, tlv_lst, tlv_bin_lst, sc_vol_lst = [], [], [], []
+    count_lst, tlv_bin_lst, sc_vol_lst = [], [], []
     for img_fold, z_min, z_max in zip(z_dct['img_fold_path'], z_dct['z_min'], z_dct['z_max']):
         sc_im = Image(os.path.join(img_fold, img_fold.split('/')[-1] + '_seg_manual.nii.gz')).change_orientation('RPI')
         lesion_im = Image(os.path.join(img_fold, img_fold.split('/')[-1] + '_lesion_manual.nii.gz')).change_orientation('RPI')
@@ -126,16 +126,14 @@ def compute_lesion_characteristics(z_dct, roi_name=''):
             del roi_im
 
         count_lst.append(label((lesion_data > 0).astype(np.int), neighbors=8, return_num=True)[1])
-        tlv_lst.append(np.sum(lesion_data) * res_x * res_y * res_z)
         tlv_bin_lst.append(np.sum((lesion_data > 0).astype(np.int)) * res_x * res_y * res_z)
         sc_vol_lst.append(np.sum(sc_data) * res_x * res_y * res_z)
 
         del sc_im, lesion_im
 
-    count, tlv, tlv_bin, sc_vol = sum(count_lst), sum(tlv_lst), sum(tlv_bin_lst), sum(sc_vol_lst)
-    nlv = tlv / sc_vol
+    count, tlv_bin, sc_vol = sum(count_lst), sum(tlv_bin_lst), sum(sc_vol_lst)
 
-    return count, tlv, nlv, tlv_bin, sc_vol
+    return count, tlv_bin, sc_vol
 
 
 def main(args=None):
@@ -154,25 +152,15 @@ def main(args=None):
         z_dct = z_to_include(image_lst, subj_fold)
 
         # csa
-        subj_data_df.loc[index, 'csa'] = compute_mean_csa(z_dct)
+        subj_data_df.loc[index, 'csa_sc'] = compute_mean_csa(z_dct)
 
         # lesion count, TLV, NLV
-        subj_data_df.loc[index, 'count'], subj_data_df.loc[index, 'tlv'], subj_data_df.loc[index, 'nlv'], _, _ = compute_lesion_characteristics(z_dct, roi_name='')
+        subj_data_df.loc[index, 'count_sc_full'], subj_data_df.loc[index, 'tlv_sc_full'], subj_data_df.loc[index, 'vol_sc_full'] = compute_lesion_characteristics(z_dct, roi_name='')
 
         # Per tract: lesion count, ALV, NLV
         alv_bin, cst_vol = 0, 0
         for tract in TRACTS_DCT:
-            subj_data_df.loc[index, 'count_'+tract], subj_data_df.loc[index, 'alv_'+tract], subj_data_df.loc[index, 'nlv_'+tract], alv_bin_cur, cst_vol_cur = compute_lesion_characteristics(z_dct, roi_name=TRACTS_DCT[tract])
-            alv_bin += alv_bin_cur
-            cst_vol += cst_vol_cur
-
-        # _CST
-        subj_data_df.loc[index, 'count_CST'] = sum([subj_data_df.loc[index, 'count_'+tract] for tract in TRACTS_DCT])
-        subj_data_df.loc[index, 'alv_CST'] = sum([subj_data_df.loc[index, 'alv_'+tract] for tract in TRACTS_DCT])
-        subj_data_df.loc[index, 'nlv_CST'] = sum([subj_data_df.loc[index, 'alv_'+tract] for tract in TRACTS_DCT]) / cst_vol
-
-        # Extension
-        subj_data_df.loc[index, 'extension_CST'] = alv_bin * 100. / subj_data_df.loc[index, 'tlv']
+            subj_data_df.loc[index, 'count_sc_'+tract], subj_data_df.loc[index, 'alv_sc_'+tract], subj_data_df.loc[index, 'vol_sc_'+tract] = compute_lesion_characteristics(z_dct, roi_name=TRACTS_DCT[tract])
 
     subj_data_df.to_csv(path_results_csv)
     subj_data_df.to_pickle(path_results_pkl)
