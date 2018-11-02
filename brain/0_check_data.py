@@ -37,8 +37,8 @@ DATE_TIME_STG = datetime.datetime.now().strftime("%Y%m%d%H%M")
 BRAINSTEM_DCT = {'CST_R': 'CSTR_Atlas.nii.gz',
                 'CST_L': 'CSTL_Atlas.nii.gz',
                 'CST': ''}
-BRAMSTEM_ZTOP = 51
-BRAMSTEM_ZBOT = 14
+BRAMSTEM_ZTOP = 63 #51
+BRAMSTEM_ZBOT = 8 #14
 
 BRAIN_DCT = {'M1_R': 'Right-M1-S-MATT.nii',
             'M1_L': 'Left-M1-S-MATT.nii',
