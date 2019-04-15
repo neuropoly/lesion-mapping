@@ -134,7 +134,7 @@ def check_data(path_data, center_dct, subj_data_df):
     excluded_subject = []
     for s, center, idx_s in zip(subj_data_df.subject.values, subj_data_df.center.values, subj_data_df.index.values):
         s_folder = os.path.join(path_data, s)
-        if os.path.isdir(s_folder):
+        if os.path.isdir(s_folder) and center in center_dct:
             sc_folder = os.path.join(s_folder, 'brain')
             for c in center_dct[center]:
                 c_folder = os.path.join(sc_folder, center_dct[center][c])

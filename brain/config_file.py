@@ -14,7 +14,9 @@ config["dct_center"] = {"rennes": {"struct": "t1",
                         "nih": {"struct": "t1",
                                     "anat": "flair"},
                         "milan": {"struct": "t1",
-                                    "anat": "t2"}
+                                    "anat": "t2"},
+                        "bwh": {"struct": "t1",
+                                    "anat": "flair"}
                         }
 
 config["path_data"] = "/Volumes/projects/ms_brain_spine/data_processing/"
