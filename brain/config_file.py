@@ -11,18 +11,20 @@ config["dct_center"] = {"rennes": {"struct": "t1",
                                     "anat": "flair"},
                         "montpellier": {"struct": "t1",
                                     "anat": "flair"},
-                        "lyon": {"struct": "t1",
-                                    "anat": "flair"}
+                        "nih": {"struct": "t1",
+                                    "anat": "flair"},
+                        "milan": {"struct": "t1",
+                                    "anat": "t2"}
                         }
 
-config["path_data"] = "/home/charley/data/brain_spine/data_processing/"
+config["path_data"] = "/Volumes/projects/ms_brain_spine/data_processing/"
 
-config["csv_clinicalInfo"] = "/home/charley/data/brain_spine/clinical_data.csv"
+config["csv_clinicalInfo"] = "/Volumes/projects/ms_brain_spine/clinical_data.csv"
 
-config["path_results"] = "/home/charley/data/brain_spine/results/"
+config["path_results"] = "/Volumes/projects/ms_brain_spine/results/"
 
-config["path_anima_brain_extraction"] = "/home/charley/code/Anima-Scripts-Public/brain_extraction/"
+config["path_anima_brain_extraction"] = "/Users/anne/Anima-Scripts-Public/brain_extraction/"
 
-config["path_smatt_folder"] = "/home/charley/Documents/anne/SMATT_website/"
-config["path_brainstem_folder"] = "/home/charley/Documents/anne/Brainstem23BundleAtlas/"
-config["path_atlases"] = "/home/charley/data/brain_spine/atlases/"
+config["path_smatt_folder"] = "/Volumes/projects/ms_brain_spine/download_atlases/SMATT_website/"
+config["path_brainstem_folder"] = "/Volumes/projects/ms_brain_spine/download_atlases/Brainstem23BundleAtlas/"
+config["path_atlases"] = "/Volumes/projects/ms_brain_spine/atlases/"
