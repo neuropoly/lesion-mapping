@@ -138,9 +138,17 @@ def check_data(path_data, center_dct, subj_data_df):
             sc_folder = os.path.join(s_folder, 'brain')
             for c in center_dct[center]:
                 c_folder = os.path.join(sc_folder, center_dct[center][c])
+                if center == 'karo' and c == 'anat':
+                    if not os.path.isfile(os.path.join(c_folder, center_dct[center][c] + '.nii.gz')):
+                        c_folder = os.path.join(sc_folder, 't2')
+                        cont = 't2'
+                    else:
+                        cont = center_dct[center][c]
+                else:
+                    cont = center_dct[center][c]
                 if os.path.isdir(c_folder):
-                    c_img = os.path.join(c_folder, center_dct[center][c] + '.nii.gz')
-                    c_lesion = os.path.join(c_folder, center_dct[center][c] + '_lesion_manual.nii.gz')
+                    c_img = os.path.join(c_folder, cont + '.nii.gz')
+                    c_lesion = os.path.join(c_folder, cont + '_lesion_manual.nii.gz')
                     
                     if not os.path.isfile(c_img):
                         missing_img.append(os.path.abspath(c_img))
