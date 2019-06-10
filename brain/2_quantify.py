@@ -22,7 +22,7 @@
 # - brain_SMA_R, brain_SMA_L:
 #
 # Created: 2018-10-15
-# Modified: 2018-10-26
+# Modified: 2019-06-10
 # Contributors: Charley Gros
 
 import os
@@ -70,6 +70,15 @@ def segment_t1(img_file, mask_file, out_file):
     cmd += ' -x '+mask_file
     cmd += ' -o '+out_file
     os.system(cmd)
+
+
+def compute_bpf(seg_file):
+    seg = Image(seg_file)
+    nb_csf = np.count_nonzero(seg.data == 1)  # CSF
+    nb_gm = np.count_nonzero(seg.data == 2)  # GM
+    nb_wm = np.count_nonzero(seg.data == 3)  # WM
+    brain_parenchymal_fraction = (nb_wm + nb_gm) * 1.0 / (nb_csf + nb_wm + nb_gm)  # BPF
+    return brain_parenchymal_fraction
 
 def compute_lesion_characteristics(img_fold, atlas_name='', roi_name=''):
     if atlas_name == '':
@@ -136,8 +145,10 @@ def main():
             t1_img = os.path.join(t1_fold, center_dct[row.center]["struct"]+'.nii.gz')
             t1_seg = os.path.join(t1_fold, center_dct[row.center]["struct"]+'_seg.nii.gz')  # GM, WM, CSF
             if not os.path.join(t1_seg):
+                print(t1_seg)
                 segment_t1(t1_img, t1_brain_mask_nii, t1_seg)
             subj_data_df.loc[index, 'brain_parenchymal_fraction'] = compute_bpf(t1_seg)
+            print(subj_data_df.loc[index, 'brain_parenchymal_fraction'])
 
             flair_fold = os.path.join(subj_fold, center_dct[row.center]["anat"])
             if not os.path.isfile(os.path.join(flair_fold, center_dct[row.center]["anat"]+'.nii.gz')):
