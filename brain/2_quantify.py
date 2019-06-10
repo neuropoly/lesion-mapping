@@ -64,6 +64,13 @@ def compute_tbv(fname_in):
     return np.sum(data) * res_x * res_y * res_z
 
 
+def segment_t1(img_file, mask_file, out_file):
+    cmd = 'Atropos -d 3 -i KMeans[3]'
+    cmd += ' -a '+img_file
+    cmd += ' -x '+mask_file
+    cmd += ' -o '+out_file
+    os.system(cmd)
+
 def compute_lesion_characteristics(img_fold, atlas_name='', roi_name=''):
     if atlas_name == '':
         mask_path = os.path.join(img_fold, img_fold.split('/')[-1]+'_brainMask.nii.gz')
