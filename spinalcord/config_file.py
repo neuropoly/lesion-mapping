@@ -14,7 +14,8 @@ config["dct_center"] = {"rennes": ["t2s_inf", "t2s_sup"],
                         "nih": ["t2s"],
                         "bwh": ["t2_ax"],
                         "milan": ["t2s_ax"],
-                        "amu": ["t2s_inf", "t2s_sup"]}
+                        "karo": ["t2s"]
+                        }
 
 config["path_data"] = "/Volumes/projects/ms_brain_spine/data_processing/"
 
