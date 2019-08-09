@@ -3,7 +3,7 @@
 # Goal: To generate Lesion Frequency Maps.
 #
 # Created: 2018-10-28
-# Modified: 2018-10-28
+# Modified: 2019-08-09
 # Contributors: Charley Gros
 
 import os
@@ -99,10 +99,20 @@ def main(args=None):
     if not os.path.isdir(path_lfm_fold):
         os.makedirs(path_lfm_fold)
 
-    path_lfm = os.path.join(path_lfm_fold, 'brain_LFM.nii.gz')
-    path_lfm_cst = os.path.join(path_lfm_fold, 'brain_LFM_CST.nii.gz')
-    if not os.path.isfile(path_lfm) or not os.path.isfile(path_lfm_cst):
-        generate_LFM(subj_data_df, path_lfm, path_lfm_cst, path_data, dct_center, path_atlases)
+    for subgroup in ['all', 'rem', 'pro']:
+        path_lfm = os.path.join(path_lfm_fold, 'brain_LFM_'+subgroup+'.nii.gz')
+        path_lfm_cst = os.path.join(path_lfm_fold, 'brain_LFM_CST_'+subgroup+'.nii.gz')
+        if subgroup == 'all':
+            lfm_df = subj_data_df
+        elif subgroup == 'pro':
+            lfm_df = subj_data_df[subj_data_df.phenotype.isin(['PP', 'SP'])]
+        elif subgroup == 'rem':
+            lfm_df = subj_data_df[subj_data_df.phenotype.isin(['CIS', 'RR'])]
+
+        if not os.path.isfile(path_lfm) or not os.path.isfile(path_lfm_cst):
+            print('\nGenerating the LFM with '+subgroup+' subjects ('+str(len(lfm_df.index))+').')
+            generate_LFM(lfm_df, path_lfm, path_lfm_cst, path_data, dct_center, path_atlases)
+
 
 if __name__ == "__main__":
     main()

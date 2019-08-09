@@ -112,7 +112,7 @@ def main(args=None):
 
         if not os.path.isfile(path_lfm) or not os.path.isfile(path_lfm_cst):
             print('\nGenerating the LFM with '+subgroup+' subjects ('+str(len(lfm_df.index))+').')
-            generate_LFM(subj_data_df, path_lfm, path_lfm_cst, path_data)
+            generate_LFM(lfm_df, path_lfm, path_lfm_cst, path_data)
 
 if __name__ == "__main__":
     main()
