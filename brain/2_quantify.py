@@ -146,6 +146,7 @@ def main():
             t1_img = os.path.join(t1_fold, center_dct[row.center]["struct"]+'.nii.gz')
             t1_seg = os.path.join(t1_fold, center_dct[row.center]["struct"]+'_seg.nii.gz')  # GM, WM, CSF
             if not os.path.isfile(t1_seg):
+                print('Brain segmentation: '+row.subject)
                 segment_t1(t1_img, t1_brain_mask_nii, t1_seg)
             subj_data_df.loc[index, 'brain_parenchymal_fraction'] = compute_bpf(t1_seg)
 
