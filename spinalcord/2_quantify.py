@@ -108,7 +108,7 @@ def compute_mean_csa(z_dct):
 
 
 def compute_lesion_characteristics(z_dct, roi_name=''):
-    count_lst, tlv_bin_lst, sc_vol_lst = [], [], []
+    count_lst, tlv_lst, sc_vol_lst = [], [], []
     for img_fold, z_min, z_max in zip(z_dct['img_fold_path'], z_dct['z_min'], z_dct['z_max']):
         sc_im = Image(os.path.join(img_fold, img_fold.split('/')[-1] + '_seg_manual.nii.gz')).change_orientation('RPI')
         lesion_im = Image(os.path.join(img_fold, img_fold.split('/')[-1] + '_lesion_manual.nii.gz')).change_orientation('RPI')
@@ -121,19 +121,24 @@ def compute_lesion_characteristics(z_dct, roi_name=''):
         if os.path.isfile(roi_path):
             roi_im = Image(roi_path).change_orientation('RPI')
             roi_data = roi_im.data[:, :, z_min:z_max+1]
-            sc_data = sc_data * roi_data
-            lesion_data = lesion_data * roi_data
+            sc_data = (sc_data * roi_data)
+            lesion_data = (lesion_data * roi_data)
+            lesion_threshold_indices = lesion_data > 0            
+            lesion_data[lesion_threshold_indices] = 1
+            sc_threshold_indices = sc_data > 0
+            sc_data[sc_threshold_indices] = 1
+            
             del roi_im
 
         count_lst.append(label((lesion_data > 0).astype(np.int), neighbors=8, return_num=True)[1])
-        tlv_bin_lst.append(np.sum((lesion_data > 0).astype(np.int)) * res_x * res_y * res_z)
+        tlv_lst.append(np.sum(lesion_data) * res_x * res_y * res_z)
         sc_vol_lst.append(np.sum(sc_data) * res_x * res_y * res_z)
 
         del sc_im, lesion_im
 
-    count, tlv_bin, sc_vol = sum(count_lst), sum(tlv_bin_lst), sum(sc_vol_lst)
+    count, tlv, sc_vol = sum(count_lst), sum(tlv_lst), sum(sc_vol_lst)
 
-    return count, tlv_bin, sc_vol
+    return count, tlv, sc_vol
 
 
 def main(args=None):
@@ -159,7 +164,6 @@ def main(args=None):
         subj_data_df.loc[index, 'count_sc_full'], subj_data_df.loc[index, 'tlv_sc_full'], subj_data_df.loc[index, 'vol_sc_full'] = compute_lesion_characteristics(z_dct, roi_name='')
 
         # Per tract: lesion count, ALV, NLV
-        alv_bin, cst_vol = 0, 0
         for tract in TRACTS_DCT:
             subj_data_df.loc[index, 'count_sc_'+tract], subj_data_df.loc[index, 'alv_sc_'+tract], subj_data_df.loc[index, 'vol_sc_'+tract] = compute_lesion_characteristics(z_dct, roi_name=TRACTS_DCT[tract])
 
