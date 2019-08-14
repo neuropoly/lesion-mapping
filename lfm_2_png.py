@@ -37,7 +37,7 @@ def load_brain_brainstem_motor():
                     'brain_S1_R.nii.gz', 'brain_S1_L.nii.gz',
                     'brain_SMA_R.nii.gz', 'brain_SMA_L.nii.gz']
     fname_brainstem_lst = ['brainstem_CST_L.nii.gz', 'brainstem_CST_R.nii.gz']
-    BRAMSTEM_ZTOP = 51
+    BRAMSTEM_ZTOP = 63
 
     data_M1 = np.sum([load_data(os.path.join(path_smatt, f), thr_bin=0) for f in fname_M1_lst], axis=0)
     data_brainstem = np.sum([load_data(os.path.join(path_brainstem, f), thr_bin=0.01) for f in fname_brainstem_lst], axis=0)
@@ -53,16 +53,17 @@ def load_brain_brainstem_motor():
 def load_brain_brainstem_M1():
     fname_M1_lst = ['brain_M1_R.nii.gz', 'brain_M1_L.nii.gz']
     fname_brainstem_lst = ['brainstem_CST_L.nii.gz', 'brainstem_CST_R.nii.gz']
-    BRAMSTEM_ZTOP = 51
+    BRAMSTEM_ZTOP = 63
 
     data_M1 = np.sum([load_data(os.path.join(path_smatt, f), thr_bin=0) for f in fname_M1_lst], axis=0)
     data_brainstem = np.sum([load_data(os.path.join(path_brainstem, f), thr_bin=0.01) for f in fname_brainstem_lst], axis=0)
-
+    
+    print(np.unique(data_M1[:,:,60]), np.unique(data_brainstem[:,:,60]))
     data_M1[:, :, :BRAMSTEM_ZTOP+1] = 0.0
     data_brainstem[:, :, BRAMSTEM_ZTOP+1:] = 0.0
-
+    print(np.unique(data_M1[:,:,60]), np.unique(data_brainstem[:,:,60]))
     data_motor = data_M1 + data_brainstem
-
+    print(np.unique(data_motor[:,:,60]))
     return data_motor
 
 def rescale_rot(img, rescale):
@@ -84,6 +85,7 @@ def combine_img_w_bkg(img, bkg, cst, rescale, thr, fname_out, color='black', lin
     img_out[i_nonzero] = img_jet[i_nonzero]
 
     img_out = rescale_rot(img_out, rescale)
+    print(np.unique(cst))
     cst = rescale_rot(cst, rescale)
 
     ratio_shape = img_out.shape[0] * 1. / img_out.shape[1]
@@ -92,7 +94,9 @@ def combine_img_w_bkg(img, bkg, cst, rescale, thr, fname_out, color='black', lin
     plt.axis("off")
     plt.imshow(img_out, interpolation='nearest', aspect='auto')
 
+    print(np.unique(cst))
     cst_dilated = binary_dilation(cst) if brain_sc else binary_dilation(cst, iterations=3)
+    print(np.unique(cst))
     contours = find_contours(cst_dilated, .5)
     for n, contour in enumerate(contours):
         plt.plot(contour[:, 1], contour[:, 0], 'white', linewidth=linewidth)
@@ -117,6 +121,7 @@ def save_colormap(fname_out, cmap='jet'):
 
 
 def extract_slices(img, backgroud, cst, z_lst):
+    print(np.unique(cst[:,:,60]))
     img_lst = [img[:, :, int(z)] for z in z_lst if int(z) in range(img.shape[2])]
     bkg_lst = [backgroud[:, :, int(z)] for z in z_lst if int(z) in range(backgroud.shape[2])]
     cst_lst = [cst[:, :, int(z)] for z in z_lst if int(z) in range(cst.shape[2])]
@@ -178,11 +183,12 @@ def main(lfm_path, brain_spinalcord, thr, ofolder, z_lst):
         backgroud = img_background.data
         del img_background
 
-        cst_mask = load_brain_brainstem_motor()
-        #cst_mask = load_brain_brainstem_M1()
-
+        #cst_mask = load_brain_brainstem_motor()
+        cst_mask = load_brain_brainstem_M1()
+        print(np.unique(cst_mask))
+        print(z_lst)
         img_lst, bkg_lst, cst_lst, pref_lst = extract_slices(img, backgroud, cst_mask, z_lst)
-
+        print(np.unique(cst_lst[0]))
         linewidth = 10
 
     if not os.path.isdir(ofolder):
