@@ -100,7 +100,7 @@ def main(args=None):
     if not os.path.isdir(path_lfm_fold):
         os.makedirs(path_lfm_fold)
 
-    for subgroup in ['all', 'rem', 'pro']:
+    for subgroup in ['all', 'rem', 'pro', 'CIS', 'RR', 'SP', 'PP', 'edss_low', 'edss_med', 'edss_high', 'edssPy_low', 'edssPy_med', 'edssPy_high']:
         path_lfm = os.path.join(path_lfm_fold, 'spinalcord_LFM_'+subgroup+'.nii.gz')
         path_lfm_cst = os.path.join(path_lfm_fold, 'spinalcord_LFM_CST_'+subgroup+'.nii.gz')
         if subgroup == 'all':
@@ -109,10 +109,27 @@ def main(args=None):
             lfm_df = subj_data_df[subj_data_df.phenotype.isin(['PP', 'SP'])]
         elif subgroup == 'rem':
             lfm_df = subj_data_df[subj_data_df.phenotype.isin(['CIS', 'RR'])]
+        elif subgroup in ['CIS', 'RR', 'SP', 'PP']:
+            lfm_df = subj_data_df[subj_data_df.phenotype == subgroup]
+        elif subgroup.startswith('edss_'):
+            if subgroup.endswith('low'):
+                lfm_df = subj_data_df[subj_data_df.edss_M0 <= 2.5]
+            elif subgroup.endswith('high'):
+                lfm_df = subj_data_df[subj_data_df.edss_M0 >= 6.0]
+            elif subgroup.endswith('med'):
+                lfm_df = subj_data_df[(subj_data_df.edss_M0 < 6.0) & (subj_data_df.edss_M0 > 2.5)]
+        elif subgroup.startswith('edssPy_'):
+            if subgroup.endswith('low'):
+                lfm_df = subj_data_df[subj_data_df.edss_py_M0 < 1.0]
+            elif subgroup.endswith('high'):
+                lfm_df = subj_data_df[subj_data_df.edss_py_M0 >= 3.0]
+            elif subgroup.endswith('med'):
+                lfm_df = subj_data_df[(subj_data_df.edss_py_M0 < 3.0) & (subj_data_df.edss_py_M0 >= 1.0)]
 
         if not os.path.isfile(path_lfm) or not os.path.isfile(path_lfm_cst):
             print('\nGenerating the LFM with '+subgroup+' subjects ('+str(len(lfm_df.index))+').')
             generate_LFM(lfm_df, path_lfm, path_lfm_cst, path_data)
+
 
 if __name__ == "__main__":
     main()
