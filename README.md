@@ -1,5 +1,4 @@
-# ms_brain_spine
-Project about quantification of MS lesions in the brain + spinal cord
+# Multiple Sclerosis lesion quantification
 
 - [Dependencies](#dependencies)
 - [Dataset structure](#dataset-structure)
@@ -8,12 +7,14 @@ Project about quantification of MS lesions in the brain + spinal cord
 - [License](#license)
 
 ## Dependencies
+### Spinal Cord data processing
 - [Spinal Cord Toolbox (SCT)](https://github.com/neuropoly/spinalcordtoolbox)
 
 SCT is used for all preprocessing steps of the spinal cord data, including cord segmentation, registration into the template space, and lesion load quantification.
 
 Version [v.3.2.4](https://github.com/neuropoly/spinalcordtoolbox/releases/v3.2.4) and above.
 
+### Brain data processing
 - [Anima-Public](https://github.com/Inria-Visages/Anima-Public)
 
 Anima-Public is used for registrating brain data to the MNI space.
@@ -219,10 +220,12 @@ Regions of interest:
 - CST: corticospinal tracts
 
 ## References
-[ todo ]
-- SCT, Anima, Atlases (smatt, brainstem, pam50, wm_sc_atlas)
-- eden
-- commonwick, gros
+- Commowick O, Wiest-Daessle N, Prima S. Block-matching strategies for rigid registration of multimodal
+medical images. In: 2012 9th IEEE International Symposium on Biomedical Imaging (ISBI). 2012
+Available from: http://dx.doi.org/10.1109/isbi.2012.6235644
+- De Leener B, Lévy S, Dupont SM, Fonov VS, Stikov N, Louis Collins D, et al. SCT: Spinal Cord Toolbox,
+an open-source software for processing spinal cord MRI data. Neuroimage 2017; 145: 24–43.
+- Gros, Charley, et al. "Automatic segmentation of the spinal cord and intramedullary multiple sclerosis lesions with convolutional neural networks." Neuroimage 184 (2019): 901-915.
 
 ## Licence
 The MIT License (MIT)
