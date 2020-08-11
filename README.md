@@ -2,8 +2,10 @@
 
 - [Dependencies](#dependencies)
 - [Dataset structure](#dataset-structure)
+- [Preprocessing for longitudinal data](#preprocessing-for-longitudinal-data)
 - [How to run](#how-to-run)
 - [References](#references)
+- [Studies using this pipeline](#studies-using-this-pipeline)
 - [License](#license)
 
 ## Dependencies
@@ -50,6 +52,10 @@ The dataset should be arranged in a structured fashion, as the following:
 			- labels_disc.nii.gz # disc label (2 labels, i.e. 2 voxels)
 			- labels_vert.nii.gz # vertebral label (2 labels, i.e. voxels, mid body), non-compulsory
 ~~~
+
+## Preprocessing for longitudinal data
+
+Scripts are available under `brain/preprocessing` and `spinalcord/preprocessing` to register follow-up data on T0 data.
 
 ## How to run
 
@@ -226,6 +232,9 @@ Available from: http://dx.doi.org/10.1109/isbi.2012.6235644
 - De Leener B, Lévy S, Dupont SM, Fonov VS, Stikov N, Louis Collins D, et al. SCT: Spinal Cord Toolbox,
 an open-source software for processing spinal cord MRI data. Neuroimage 2017; 145: 24–43.
 - Gros, Charley, et al. "Automatic segmentation of the spinal cord and intramedullary multiple sclerosis lesions with convolutional neural networks." Neuroimage 184 (2019): 901-915.
+
+## Studies using this pipeline
+- Kerbrat, Anne, et al. "Multiple sclerosis lesions in motor tracts from brain to cervical cord: spatial distribution and correlation with disability." Brain 143.7 (2020): 2089-2105.
 
 ## Licence
 The MIT License (MIT)
