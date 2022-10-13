@@ -225,6 +225,14 @@ Regions of interest:
 - LCST_R, LCST_L : lateral corticospinal right and left tracts
 - CST: corticospinal tracts
 
+#### Generate Lesion Frequency Maps.
+Generate Lesion Frequency Maps (LFM) in the entire cord as well as in the corticospinal tracts:
+~~~
+python 3_generate_LFM.py
+~~~
+
+It generating the LFM in the entire cord as well as in the corticospinal tracts, for each of the patients subgroup (`spinalcord_LFM_<subgroup>.nii.gz` and `spinalcord_LFM_CST_<subgroup>.nii.gz`) in the `path_results/LFM` folder.
+
 ## References
 - Commowick O, Wiest-Daessle N, Prima S. Block-matching strategies for rigid registration of multimodal
 medical images. In: 2012 9th IEEE International Symposium on Biomedical Imaging (ISBI). 2012
