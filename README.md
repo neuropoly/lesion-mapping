@@ -225,6 +225,26 @@ Regions of interest:
 - LCST_R, LCST_L : lateral corticospinal right and left tracts
 - CST: corticospinal tracts
 
+#### Generate Lesion Frequency Maps.
+Generate Lesion Frequency Maps (LFM) in the entire cord as well as in the corticospinal tracts:
+~~~
+python 3_generate_LFM.py
+~~~
+
+It generating the LFM in the entire cord as well as in the corticospinal tracts, for each of the patients subgroup (`spinalcord_LFM_<subgroup>.nii.gz` and `spinalcord_LFM_CST_<subgroup>.nii.gz`) in the `path_results/LFM` folder.
+
+Note that in its current version, the function is suboptimal, and has been recently replaced by [this function](https://github.com/yw7/sc_lesion_frequency_map): 
+
+Notable differences with the more recent version:
+
+1. It doesn't include the registration to the template, just assuming the warping fields already exist (because it needs a QC).
+2. it's not relying on the old version of SCT (as for my understanding this was the reason I couldn't run the script), but on bash script.
+3. It's doing nn interpolation for applying the transformation to SC segmentation (as in sct_warp_template).
+4. It has the options to set the data directories, structure and the file names (or some regex pattern) as parameters.
+5. It has the option to cut the results to the spinal cord area that covers all subjects SC segmentation.
+
+
+
 ## References
 - Commowick O, Wiest-Daessle N, Prima S. Block-matching strategies for rigid registration of multimodal
 medical images. In: 2012 9th IEEE International Symposium on Biomedical Imaging (ISBI). 2012
